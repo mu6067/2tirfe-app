@@ -1,4 +1,4 @@
-# 2tirfe-app 
+tirfe app merchant new
 <!DOCTYPE html>
 <html lang="am">
 <head>
@@ -26,6 +26,7 @@
         .container { max-width: 1200px; margin: 0 auto; }
         .hidden { display: none !important; }
         
+        /* Login Box */
         .login-box {
             max-width: 360px; margin: 60px auto;
             background-color: var(--card-bg); padding: 25px;
@@ -42,6 +43,7 @@
         }
         input:focus { border-color: var(--primary); }
 
+        /* Buttons */
         .btn-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px; margin: 15px 0; }
         button { padding: 10px 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.85rem; text-align: center; }
         button:active { transform: scale(0.98); }
@@ -52,6 +54,7 @@
         .btn-warning { background-color: var(--warning); color: #000; }
         .btn-purple { background-color: var(--purple); color: white; }
 
+        /* Cards & Dashboard */
         .welcome-card { background: linear-gradient(135deg, #1c2541, #3a506b); padding: 15px; border-radius: 12px; text-align: center; margin-bottom: 15px; }
         .welcome-card h1 { color: var(--success); font-size: 1.4rem; }
         .welcome-card p { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
@@ -67,6 +70,7 @@
         .section-box { background-color: var(--card-bg); padding: 15px; border-radius: 10px; margin-bottom: 15px; }
         .section-box h2 { font-size: 1rem; margin-bottom: 12px; border-bottom: 1px solid #3a506b; padding-bottom: 5px; color: var(--primary); }
 
+        /* Tables */
         .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 6px; }
         table { width: 100%; border-collapse: collapse; min-width: 650px; }
         th, td { padding: 10px 12px; border-bottom: 1px solid #3a506b; text-align: left; font-size: 0.85rem; white-space: nowrap; }
@@ -206,14 +210,12 @@
     let localDB = { tenants: {} };
     let currentTenant = null;
 
-    // ሪልታይም ዳታ ከFirebase የመቀበያ ዘዴ
+    // የሪልታይም ዳታ መከታተያ
     db.ref('tirfe_system').on('value', (snapshot) => {
-        const val = snapshot.val();
-        if(val) {
-            localDB = val;
+        if(snapshot.exists()) {
+            localDB = snapshot.val();
             if(!localDB.tenants) localDB.tenants = {};
             
-            // የገባ ተጠቃሚ ካለ መረጃውን በቅጽበት ማደስ
             if(currentTenant) {
                 let checkTenant = localDB.tenants[currentTenant.username];
                 if(!checkTenant) {
@@ -222,18 +224,18 @@
                     return;
                 }
                 if(checkTenant.status === "blocked") {
-                    alert("🔒 የኪራይ ጊዜዎ አብቅቷል!");
+                    alert("🔒 የኪራይ ጊዜዎ አብቅቷል! እባክዎ ባለቤቱን ያነጋግሩ።");
                     logout();
                     return;
                 }
                 currentTenant = checkTenant;
                 loadTenantApp();
             }
-            
-            // አድሚን ፓነል ላይ ከሆነ ሰንጠረዡን ማደስ
             if(!document.getElementById('adminPage').classList.contains('hidden')) {
                 renderAdminPanel();
             }
+        } else {
+            localDB = { tenants: {} };
         }
     });
 
@@ -241,14 +243,12 @@
         db.ref('tirfe_system').set(localDB);
     }
 
-    // ሙሉ በሙሉ የተስተካከለው የሎጊን (Login) አሰራር
+    // የተስተካከለው የመግቢያ ተግባር
     function handleLogin() {
-        let user = document.getElementById('loginUser').value.trim().toLowerCase();
+        let user = document.getElementById('loginUser').value.trim();
         let pass = document.getElementById('loginPass').value.trim();
         let error = document.getElementById('loginError');
-        error.innerText = ""; // የድሮ ስህተትን ማጽዳት
 
-        // አድሚን መግቢያ
         if(user === "admin" && pass === "admin123") {
             document.getElementById('loginPage').classList.add('hidden');
             document.getElementById('adminPage').classList.remove('hidden');
@@ -256,32 +256,31 @@
             return;
         }
 
-        // በቀጥታ ከFirebase ላይ ዳታውን ፈልጎ ማረጋገጥ (የጊዜ መዘግየትን ለማስቀረት)
-        db.ref('tirfe_system/tenants/' + user).once('value', (snapshot) => {
-            if (snapshot.exists()) {
-                let tenant = snapshot.val();
-                if (String(tenant.password).trim() === pass) {
-                    if (tenant.status === "blocked") {
-                        error.innerText = "🔒 ኪራይዎ ተቋርጧል!";
-                        return;
-                    }
-                    currentTenant = tenant;
-                    document.getElementById('loginPage').classList.add('hidden');
-                    document.getElementById('appPage').classList.remove('hidden');
-                    document.getElementById('shopTitle').innerText = tenant.shopName + " - መቆጣጠሪያ";
-                    loadTenantApp();
-                } else {
-                    error.innerText = "❌ የይለፍ ቃል ስህተት ነው!";
-                }
-            } else {
-                error.innerText = "❌ እንዲህ አይነት የተጠቃሚ ስም አልተገኘም!";
+        // ዳታው በቅድሚያ መኖሩን ማረጋገጥ
+        if (!localDB.tenants) {
+            error.innerText = "❌ ምንም የተመዘገበ ተከራይ የለም!";
+            return;
+        }
+
+        let tenant = localDB.tenants[user];
+        if(tenant && String(tenant.password).trim() === pass) {
+            if(tenant.status === "blocked") {
+                error.innerText = "🔒 ኪራይዎ ተቋርጧል!";
+                return;
             }
-        });
+            currentTenant = tenant;
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('appPage').classList.remove('hidden');
+            document.getElementById('shopTitle').innerText = tenant.shopName + " - መቆጣጠሪያ";
+            loadTenantApp();
+        } else {
+            error.innerText = "❌ የተጠቃሚ ስም ወይም የይለፍ ቃል ስህተት ነው!";
+        }
     }
 
     function registerTenant() {
         let shop = document.getElementById('newShopName').value.trim();
-        let user = document.getElementById('newUsername').value.trim().toLowerCase();
+        let user = document.getElementById('newUsername').value.trim().toLowerCase(); // ለጥንቃቄ ወደ ስማርት ኬዝ መቀየር
         let pass = document.getElementById('newPassword').value.trim();
 
         if(!shop || !user || !pass) { alert("እባክዎ ሁሉንም መረጃዎች ይሙሉ!"); return; }
@@ -308,11 +307,12 @@
         pushToFirebase();
     }
 
+    // አዲስ የተጨመረው የተከራይ መሰረዣ ተግባር (Delete Tenant)
     function deleteTenant(user) {
-        if(confirm(`⚠️ እርግጠኛ ነዎት? "${localDB.tenants[user].shopName}" ተከራይን ሙሉ በሙሉ ማጥፋት ይፈልጋሉ?`)) {
+        if(confirm(`⚠️ እርግጠኛ ነዎት? "${localDB.tenants[user].shopName}" የተባለውን ተከራይና ጠቅላላ ዳታውን ሙሉ በሙሉ ማጥፋት ይፈልጋሉ?`)) {
             delete localDB.tenants[user];
             pushToFirebase();
-            alert("ተከራዩ ተሰርዟል!");
+            alert("ተከራዩ ሙሉ በሙሉ ተሰርዟል!");
             renderAdminPanel();
         }
     }
@@ -444,7 +444,6 @@
         pushToFirebase();
     }
 
-    // የዕዳ መዝገብ
     function promptDebt() {
         let name = prompt("የተበዳሪ ስም፦"); if(!name) return;
         let detail = prompt("የዕቃ ዝርዝር፦");
@@ -463,7 +462,6 @@
         debts.forEach(d => { tbody.innerHTML += `<tr><td><b>${d.name}</b></td><td>${d.detail}</td><td>${d.amt.toFixed(2)}</td></tr>`; });
     }
 
-    // የሳጥን ብር መቆጣጠሪያ
     function promptDrawer() {
         let reason = prompt("ከሳጥን የተወሰደበት ምክንያት፦"); if(!reason) return;
         let amt = parseFloat(prompt("የገንዘብ መጠን (ETB)፦")) || 0; if(amt <= 0) return;
@@ -493,3 +491,4 @@
 </script>
 </body>
 </html>
+
