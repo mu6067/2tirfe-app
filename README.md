@@ -1,4 +1,4 @@
-tirfe app hulgize mch new
+```html
 <!DOCTYPE html>
 <html lang="am">
 <head>
