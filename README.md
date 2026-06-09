@@ -178,9 +178,25 @@ yehulgize mirchachn tirfe app
             border: 1px solid var(--border-color); 
             -webkit-overflow-scrolling: touch;
         }
-        table { width: 100%; border-collapse: collapse; min-width: 600px; background-color: rgba(0,0,0,0.1); }
-        th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border-color); white-space: nowrap; font-size: 12px; }
-        th { background-color: rgba(0,0,0,0.3); color: var(--accent-color); font-weight: 600; }
+        table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    min-width: 600px; 
+    background-color: var(--card-bg) !important; 
+}
+th, td { 
+    padding: 10px 12px; 
+    text-align: left; 
+    border-bottom: 1px solid var(--border-color); 
+    white-space: nowrap; 
+    font-size: 12px; 
+    color: var(--text-color) !important; 
+}
+th { 
+    background-color: rgba(0,0,0,0.5) !important; 
+    color: var(--accent-color) !important; 
+    font-weight: 600; 
+}
 
         .badge-danger { background: var(--danger-color); color: #000; padding: 2px 5px; border-radius: 4px; font-size: 10px; font-weight: bold; }
         .badge-success { background: var(--success-color); color: #000; padding: 2px 5px; border-radius: 4px; font-size: 10px; font-weight: bold; }
