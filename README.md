@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, minimum-scale=0.5, maximum-scale=3.0">
-    <title>ትርፌ የሱቅ መቆጣጠሪያ አፕሊኬሽን - Ultimate v8.0</title>
+    <title>ትርፌ የሱቅ መቆጣጠሪያ አፕሊኬሽን - Ultimate v9.2</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
         :root {
@@ -237,6 +238,27 @@
         
         .search-container { margin-bottom: 12px; }
         .search-input { border: 1px solid var(--accent-color); background: rgba(56, 189, 248, 0.05); }
+        .offline-tag { background: #ef4444; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; animation: blink 1.5s infinite; }
+        @keyframes blink { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+
+        /* ለደረሰኝ ውብ ቴብል ዲዛይን ስታይል */
+        .receipt-container {
+            background-color: #ffffff;
+            color: #333333;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .receipt-header { text-align: center; margin-bottom: 15px; border-bottom: 2px dashed #333; padding-bottom: 10px; }
+        .receipt-header h4 { margin: 0; font-size: 1.3rem; color: #111; text-transform: uppercase; }
+        .receipt-header p { margin: 4px 0; font-size: 0.85rem; color: #565656; }
+        .receipt-table { width: 100%; margin-top: 10px; border-collapse: collapse; }
+        .receipt-table th, .receipt-table td { color: #222 !important; padding: 8px 5px; font-size: 0.85rem; border-bottom: 1px dashed #ddd; text-align: left; }
+        .receipt-table th { background-color: #f5f5f5 !important; font-weight: bold; }
+        .receipt-summary { margin-top: 15px; border-top: 2px dashed #333; padding-top: 8px; text-align: right; font-size: 0.95rem; font-weight: bold; color: #111; }
+        .receipt-footer { text-align: center; margin-top: 20px; font-size: 0.8rem; color: #777; font-style: italic; }
+        .receipt-actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
     </style>
 </head>
 <body class="theme-deepblue">
@@ -244,17 +266,17 @@
 <div class="container">
 
     <div id="welcomeGateway" class="gateway-box">
-        <h2>እንኳን ደህና መጡ!</h2>
+        <h2>እንኳን ደህና መጡ! <span id="syncIndicator" class="hidden offline-tag">Offline ሞድ</span></h2>
         <p>እባክዎ መተግበሪያውን በምን ሁኔታ መጠቀም እንደሚፈልጉ ይምረጡ፦</p>
-        <button class="gateway-btn" onclick="switchView('buyerPage')">🛍️ እኔ ገዢ ነኝ </button>
-        <button class="gateway-btn" onclick="showLoginSection('admin')">👑 እኔ አከራይ ነኝ </button>
-        <button class="gateway-btn" onclick="showLoginSection('merchant')">💼 እኔ ሱቅ ባለቤት ነኝ </button>
-        <button class="gateway-btn" onclick="showLoginSection('staff')">🛠️ እኔ ሰራተኛ ነኝ </button>
+        <button class="gateway-btn" onclick="switchView('buyerPage')">🛍️ እኔ ገዢ ነኝ (የዕቃዎች ማሳያ ማውጫ)</button>
+        <button class="gateway-btn" onclick="showLoginSection('admin')">👑 እኔ አከራይ ነኝ (Main Owner)</button>
+        <button class="gateway-btn" onclick="showLoginSection('merchant')">💼 እኔ ሱቅ ባለቤት ነኝ (Tenant Owner)</button>
+        <button class="gateway-btn" onclick="showLoginSection('staff')">🛠️ እኔ ሰራተኛ ነኝ (Store Staff)</button>
     </div>
 
     <div id="loginPage" class="login-box hidden">
         <h2 id="loginTitle">ትርፌ አፕ (Tirfe Tech)</h2>
-        <p id="loginDesc">የኪራይና የሱቅ መቆጣጠሪያ ማዕከላዊ ሲስተም v8.0</p>
+        <p id="loginDesc">የኪራይና የሱቅ መቆጣጠሪያ ማዕከላዊ ሲስተም v9.2</p>
         <input type="text" id="loginUser" placeholder="የተጠቃሚ ስም (Username)">
         <input type="password" id="loginPass" placeholder="የይለፍ ቃል / ጊዜያዊ ኮድ">
         <button class="btn-sell btn-block" onclick="handleLogin()">🔒 ደህንነቱ የተጠበቀ መግቢያ</button>
@@ -281,7 +303,7 @@
                             <th>የሱቅ ስም</th>
                             <th>መሸጫ ዋጋ</th>
                             <th>የሻጭ ስልክ ቁጥር</th>
-                            <th>ሱቁ ያለበት ሎኬሽን</th>
+                            <th>ሱቁ ያለበት ሎኬشن</th>
                         </tr>
                     </thead>
                     <tbody id="buyerTableBody"></tbody>
@@ -356,6 +378,7 @@
         </div>
 
         <div id="sessionDisplay" class="session-badge">የዕለቱ መፈላጊ መረጃ በመጠባበቅ ላይ...</div>
+        <div id="shiftStatusAlert" class="session-badge hidden" style="color:var(--danger-color); background:rgba(244,63,94,0.1); border-color:var(--danger-color);">⚠️ ትኩረት፦ የዛሬው የስራ ሰዓት አብቅቷል። እባክዎ የዕለቱን ሂሳብ መዝጊያ ሪፖርት ያቅርቡ!</div>
 
         <div class="dashboard" id="ownerDashboard">
             <div class="card">
@@ -391,10 +414,11 @@
             <button class="btn-add" id="btn_add_item" onclick="focusInventoryInput()">📦 አዲስ ዕቃ መዝግብ</button>
             <button class="btn-expense" id="btn_expense" onclick="openExpenseModal()">📉 ወጪ መዝግብ</button>
             <button class="btn-credit" onclick="openDebtModal()">💳 ዕዳ መዝግብ</button>
-            <button class="btn-draw" onclick="openDrawerModal()">💸 ከሳጥን መልስ/ብር አንሳ</button>
+            <button class="btn-draw" onclick="openDrawerModal()">💸 ከሳጥን ብር ማንሻ / መልስ</button>
             <button class="btn-config" onclick="configureBank()">🏦 የባንክ አፕ ማያያዣ</button>
             <button class="btn-next-day" id="btn_next_day" onclick="startNewDaySession()">🔄 አዲስ ቀን ጀምር</button>
             <button class="btn-clear" id="btn_clear_all" onclick="clearAllTenantData()">🗑️ ዳታ አጽዳ</button>
+            <button class="btn-expense" id="btn_close_shift" style="background:#f59e0b; color:#000;" onclick="triggerShiftReport()">🔒 የዕለት ሂሳብ ዝጋ (ሪፖርት)</button>
         </div>
 
         <div class="section-box">
@@ -437,7 +461,11 @@
                 </div>
             </div>
             <div class="section-box" id="historySection">
-                <h2>🔄 የቀደሙ ቀናት ታሪክ (የአሰሪው ብቻ)</h2>
+                <h2>📅 የቀደሙ ቀናት ታሪክ እና ማህደር</h2>
+                <div style="margin-bottom:10px;">
+                    <label style="font-size:0.8rem; color:var(--accent-color);">ቀን መምረጫ (Filter by Date)፦</label>
+                    <input type="date" id="historyDateFilter" onchange="renderHistoryTable()">
+                </div>
                 <div class="table-responsive">
                     <table>
                         <tbody id="historyBody"></tbody>
@@ -505,8 +533,33 @@
     let currentUserRole = "owner"; 
     let myChart = null;
     let currentLoginMode = "merchant"; 
+    let isOnline = true;
 
-    // የቴሌግራም መልዕክት መላኪያ ፈንክሽን
+    window.addEventListener('online', handleOnlineStatus);
+    window.addEventListener('offline', handleOnlineStatus);
+
+    function handleOnlineStatus() {
+        isOnline = navigator.onLine;
+        const tag = document.getElementById('syncIndicator');
+        if(!isOnline) {
+            tag.classList.remove('hidden');
+        } else {
+            tag.classList.add('hidden');
+            pushToFirebase();
+        }
+    }
+
+    function loadLocalStorageBackup() {
+        let backup = localStorage.getItem('tirfe_local_db');
+        if(backup) {
+            localDB = JSON.parse(backup);
+        }
+    }
+
+    function saveToLocalStorage() {
+        localStorage.setItem('tirfe_local_db', JSON.stringify(localDB));
+    }
+
     function sendTelegramAlert(message) {
         if (!currentTenant || !currentTenant.telegramToken || !currentTenant.telegramChatId) return;
         const token = currentTenant.telegramToken;
@@ -515,10 +568,12 @@
         fetch(url).catch(err => console.log("Telegram Error: ", err));
     }
 
+    loadLocalStorageBackup();
     db.ref('tirfe_system').on('value', (snapshot) => {
         if(snapshot.exists()) {
             localDB = snapshot.val();
             if(!localDB.tenants) localDB.tenants = {};
+            saveToLocalStorage();
             
             if(currentTenant) {
                 let checkTenant = localDB.tenants[currentTenant.username];
@@ -529,7 +584,27 @@
             renderBuyerCatalog();
             if(!document.getElementById('adminPage').classList.contains('hidden')) { renderAdminPanel(); }
         }
+    }, (error) => {
+        console.log("Firebase Error, running offline mode.");
+        isOnline = false;
+        handleOnlineStatus();
     });
+
+    setInterval(() => {
+        let now = new Date();
+        let hours = now.getHours();
+        let minutes = now.getMinutes();
+
+        if(hours === 22 && currentTenant && currentTenant.data && currentTenant.data.sessionActive && !currentTenant.data.shiftClosed) {
+            document.getElementById('shiftStatusAlert').classList.remove('hidden');
+        }
+
+        if(hours === 6 && minutes === 0 && currentTenant && currentTenant.data && currentTenant.data.shiftClosed) {
+            currentTenant.data.sessionActive = false;
+            currentTenant.data.shiftClosed = false;
+            saveAndRefresh();
+        }
+    }, 60000);
 
     function switchView(targetId) {
         document.getElementById('welcomeGateway').classList.add('hidden');
@@ -574,7 +649,6 @@
         let pass = document.getElementById('loginPass').value.trim();
         let error = document.getElementById('loginError');
 
-        // 1. ለአከራይ (Admin) ቁጥጥር ፓነል መግቢያ
         if(currentLoginMode === 'admin') {
             if(user === "admin" && pass === "admin123") {
                 switchView('adminPage');
@@ -587,7 +661,6 @@
 
         let tenant = localDB.tenants ? localDB.tenants[user] : null;
 
-        // 2. ለሱቅ ባለቤቶች (Tenant Owner) መግቢያ
         if (currentLoginMode === 'merchant') {
             if (tenant) {
                 if (isTenantExpired(tenant, error)) return;
@@ -630,7 +703,6 @@
             return;
         }
 
-        // 3. ለሱቅ ሰራተኞች (Staff) መግቢያ
         if (currentLoginMode === 'staff') {
             if(localDB.tenants) {
                 for (let tKey in localDB.tenants) {
@@ -667,6 +739,7 @@
     function launchApp(tenant) {
         currentTenant = tenant;
         document.getElementById('loginPage').classList.add('hidden');
+        document.getElementById('appPage').removeclassList = "";
         document.getElementById('appPage').classList.remove('hidden');
         
         document.getElementById('shopTitle').innerText = tenant.shopName + (currentUserRole === "staff" ? " (የሰራተኛ ገጽ)" : " (የባለቤት ገጽ)");
@@ -677,8 +750,6 @@
         let activeTheme = tenant.theme || 'theme-deepblue';
         document.body.className = activeTheme;
         document.getElementById('themeSelector').value = activeTheme;
-
-        // የፍለጋ ሳጥኑን ማጽዳት
         document.getElementById('inventorySearchInput').value = "";
 
         if (currentUserRole === "staff") {
@@ -689,7 +760,6 @@
             document.getElementById('btn_next_day').classList.add('hidden');
             document.getElementById('btn_clear_all').classList.add('hidden');
             document.getElementById('owner_add_box').classList.add('hidden');
-            document.getElementById('historySection').classList.add('hidden');
             document.getElementById('ownerStaffConfig').classList.add('hidden');
             document.getElementById('expiryRowOwner').classList.add('hidden');
         } else {
@@ -700,7 +770,6 @@
             document.getElementById('btn_next_day').classList.remove('hidden');
             document.getElementById('btn_clear_all').classList.remove('hidden');
             document.getElementById('owner_add_box').classList.remove('hidden');
-            document.getElementById('historySection').classList.remove('hidden');
             document.getElementById('ownerStaffConfig').classList.remove('hidden');
             document.getElementById('expiryRowOwner').classList.remove('hidden');
             
@@ -725,9 +794,7 @@
                 let t = localDB.tenants[tKey];
                 if (t.status === "active" && t.data && t.data.inventory) {
                     t.data.inventory.forEach(item => {
-                        // የዕቃ ስም ፊልተር ማድረጊያ ሎጂክ
                         if (query !== "" && !item.name.toLowerCase().includes(query)) return;
-                        
                         hasItems = true;
                         let mapButton = t.googleMapsLink ? `<a href="${t.googleMapsLink}" target="_blank" style="background-color:var(--accent-color); color:#000; padding:6px 10px; border-radius:6px; text-decoration:none; font-weight:bold; font-size:0.8rem;">📍 ካርታ አሳይ (Map)</a>` : `<span style="color:#64748b">ያልተገለጸ</span>`;
                         tbody.innerHTML += `<tr>
@@ -766,7 +833,6 @@
             return; 
         }
 
-        // [ማስተካከያ] የአከራይ ዩዘርኔም መደጋገም መከላከያ (Duplicate Tenant Username Validation)
         if (localDB.tenants && localDB.tenants[user]) {
             showCustomAlert("⚠️ ምዝገባው አልተሳካም", `"${user}" የሚለው የተጠቃሚ ስም (Username) አስቀድሞ በሌላ ተከራይ ተወስዷል! እባክዎ የተለየ ስም ይጠቀሙ።`);
             return;
@@ -786,7 +852,7 @@
             contractType: contractType, expiryDate: expiryDate,
             status: "active", theme: "theme-deepblue",
             staffUser: "", staffPass: "",
-            data: { sessionActive: false, inventory: [], expenses: [], debts: [], drawerLog: [], history: [] } 
+            data: { sessionActive: false, shiftClosed: false, inventory: [], expenses: [], debts: [], drawerLog: [], history: [] } 
         };
         pushToFirebase(); renderAdminPanel();
         
@@ -802,8 +868,6 @@
 
         Object.keys(localDB.tenants).forEach(key => {
             let t = localDB.tenants[key];
-            
-            // [ማስተካከያ] የአከራይ ፍለጋ ሎጂክ - በተከራይ ዩዘርኔም (Username) ብቻ መፈለግ
             if (query !== "" && !t.username.toLowerCase().includes(query)) return;
 
             let statusBadge = t.status === "active" ? `<span class="badge-success">Active</span>` : `<span class="badge-danger">Blocked</span>`;
@@ -811,24 +875,24 @@
             
             let codeDisplay = "";
             if (!t.isActivated) {
-                codeDisplay = `⏱️ ጊዜያዊ ኮድ: <b class="text-warning" style="font-size:1.1rem; background:rgba(0,0,0,0.4); padding:2px 6px; border-radius:4px;">${t.activationCode}</b><br><small style="color:#94a3b8;">(ለ 24 ሰዓት ብቻ የሚያገለግል)</small>`;
+                codeDisplay = `⏱️ ጊዜያዊ ኮድ: <b class="text-warning" style="font-size:1.1rem; background:rgba(0,0,0,0.4); padding:2px 6px; border-radius:4px;">${t.activationCode}</b>`;
             } else {
-                codeDisplay = `<span class="text-success">🔒 ተከራዩ የራሱን ምስጢር ቆልፏል</span><br><small style="color:#64748b;">(ለደህንነት ሲባል አከራይ ማየት አይችልም)</small>`;
+                codeDisplay = `<span class="text-success">🔒 ተከራዩ የራሱን ምስጢር ቆልፏል</span>`;
             }
             
-            let loginInfo = `👤 አባል ስም: <code>${t.username}</code><br>${codeDisplay}<br>🛠️ ሰራተኛ: <code>${t.staffUser || 'ያልተፈጠረ'}</code> / <code>${t.staffPass || '-'}</code>`;
+            let loginInfo = `👤 አባል ስም: <code>${t.username}</code><br>${codeDisplay}<br>🛠️ ሰራተኛ: <code>${t.staffUser || '-'}</code>`;
 
             tbody.innerHTML += `<tr>
                 <td><b>${t.shopName}</b></td>
                 <td>${profileInfo}</td>
                 <td>${loginInfo}</td>
-                <td><span style="color:var(--accent-color)">${t.contractType || 'በወር'}</span></td>
+                <td><span>${t.contractType || 'በወር'}</span></td>
                 <td style="color:var(--danger-color)"><b>${t.expiryDate || '-'}</b></td>
                 <td>${statusBadge}</td>
                 <td>
                     <button class="btn-config btn-sm" onclick="toggleTenantStatus('${t.username}')">ሁኔታ ቀይር</button>
                     <button class="btn-expense btn-sm" onclick="deleteTenant('${t.username}')">Delete</button>
-                    <button class="btn-add btn-sm" style="margin-top:4px;" onclick="regenerateTenantCode('${t.username}')">🔄 አዲስ ኮድ ስጥ</button>
+                    <button class="btn-add btn-sm" style="margin-top:4px;" onclick="regenerateTenantCode('${t.username}')">🔄 አዲስ ኮድ</button>
                 </td>
             </tr>`;
         });
@@ -844,7 +908,7 @@
         localDB.tenants[user] = t;
         pushToFirebase();
         renderAdminPanel();
-        showCustomAlert("ኮድ ተለውጧል", `ለተከራዩ አዲስ ባለ 24 ሰዓት ጊዜያዊ ኮድ ተፈጥሯል፦ ${newCode}`);
+        showCustomAlert("ኮድ ተለውጧል", `ለተከራዩ አዲስ ኮድ ተፈጥሯል፦ ${newCode}`);
     }
 
     function toggleTenantStatus(user) {
@@ -865,7 +929,10 @@
     }
 
     function saveAndRefresh() { 
-        localDB.tenants[currentTenant.username] = currentTenant; pushToFirebase(); renderApp(); 
+        localDB.tenants[currentTenant.username] = currentTenant; 
+        saveToLocalStorage();
+        pushToFirebase(); 
+        renderApp(); 
     }
 
     function focusInventoryInput() { if(currentUserRole === "owner") document.getElementById('itemName').focus(); }
@@ -880,14 +947,111 @@
         if(!name || cost <= 0 || price <= 0 || qty <= 0) { showCustomAlert("ስህተት", "እባክዎ ትክክለኛ የዕቃ መረጃ ያስገቡ!"); return; }
         
         let inv = currentTenant.data.inventory || [];
-        inv.push({ name, cost, price, qty, sold: 0, profit: 0 });
-        currentTenant.data.inventory = inv; saveAndRefresh();
+        let existingItem = inv.find(item => item.name.toLowerCase() === name.toLowerCase());
+        
+        if (existingItem) {
+            existingItem.qty += qty;
+            existingItem.cost = cost;
+            existingItem.price = price;
+            showCustomAlert("🔄 ዕቃው ተሞልቷል", `"${name}" አስቀድሞ ስለነበረ አዲሱ ብዛት ተደምሮበታል። አጠቃላይ የነበረው ብዛት፦ ${existingItem.qty}`);
+        } else {
+            inv.push({ name, cost, price, qty, sold: 0, profit: 0 });
+        }
+        
+        currentTenant.data.inventory = inv; 
+        saveAndRefresh();
         
         document.getElementById('itemName').value = ''; document.getElementById('itemCost').value = ''; 
         document.getElementById('itemPrice').value = ''; document.getElementById('itemQty').value = '';
     }
 
+    // ማሻሻያ የተደረገበት ቴብል ዲዛይን ያለው ዲጂታል ደረሰኝ ማሳያ፣ PDF ማውረጃ እና ማጋሪያ አማራጮች
+    function generateDigitalReceipt(itemName, count, totalVal) {
+        let recId = Math.floor(10000 + Math.random() * 90000);
+        let dateStr = new Date().toLocaleDateString('am-ET');
+        let rawTextForShare = `======= ${currentTenant.shopName.toUpperCase()} =======\nደረሰኝ ቁጥር: #${recId}\nቀን: ${dateStr}\n---------------------------\nዕቃ: ${itemName}\nብዛት: ${count}\nጠቅላላ ዋጋ: ${totalVal} ETB\n---------------------------\nእናመሰግናለን!`;
+
+        // በሞዳል ውስጥ የሚቀመጥ ውብ የደረሰኝ HTML ቴብል መዋቅር
+        let receiptHTML = `
+        <div class="receipt-container" id="printableReceiptArea">
+            <div class="receipt-header">
+                <h4>${currentTenant.shopName}</h4>
+                <p>ዲጂታል የሽያጭ ደረሰኝ</p>
+                <p><b>ቁጥር (No):</b> #${recId} | <b>ቀን:</b> ${dateStr}</p>
+            </div>
+            <table class="receipt-table">
+                <thead>
+                    <tr>
+                        <th>የዕቃ ስም</th>
+                        <th>ብዛት</th>
+                        <th>ነጠላ ዋጋ</th>
+                        <th>ጠቅላላ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><b>${itemName}</b></td>
+                        <td>${count}</td>
+                        <td>${(totalVal/count).toFixed(1)}</td>
+                        <td><b>${totalVal} ETB</b></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="receipt-summary">
+                የተከፈለ ጠቅላላ ሂሳብ: ${totalVal}.00 ETB
+            </div>
+            <div class="receipt-footer">
+                ~ ስለመጡ እናመሰግናለን! እንደገና ይጎብኙን ~
+            </div>
+        </div>
+        <div class="receipt-actions-grid">
+            <button class="btn-sell" onclick="downloadReceiptPDF('${itemName}_${recId}')">📥 ፒዲኤፍ (PDF)</button>
+            <button class="btn-config" style="background:#0088cc; color:white;" onclick="shareToSocial('tg', \`${rawTextForShare}\`)">✈️ ቴሌግራም</button>
+            <button class="btn-config" style="background:#25D366; color:white;" onclick="shareToSocial('wa', \`${rawTextForShare}\`)">💬 ዋትስአፕ</button>
+            <button class="btn-expense" onclick="closeActiveModal()">❌ ዝጋ</button>
+        </div>
+        `;
+        
+        document.getElementById('formModalTitle').innerText = "🧾 የሽያጭ ደረሰኝ";
+        let body = document.getElementById('formModalBody');
+        body.innerHTML = receiptHTML;
+        
+        // ፉተሩን ባዶ እናደርገዋለን ምክንያቱም በተኖቹን እዛው ግሪድ ውስጥ ስላካተትናቸው
+        document.getElementById('formModalFooter').innerHTML = '';
+        
+        openModalContainer();
+        document.getElementById('formModal').classList.remove('hidden');
+    }
+
+    // ደረሰኙን ወደ PDF ቀይሮ የሚያወርድ ፈንክሽን
+    function downloadReceiptPDF(filename) {
+        const element = document.getElementById('printableReceiptArea');
+        const opt = {
+            margin:       10,
+            filename:     'Receipt_' + filename + '.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true },
+            jsPDF:        { unit: 'mm', format: 'a6', orientation: 'portrait' } // ለደረሰኝ ተስማሚ የሆነ የA6 ሳይዝ
+        };
+        html2pdf().set(opt).from(element).save();
+    }
+
+    // ወደ ሶሻል ሚዲያ ማጋሪያ ፈንክሽን
+    function shareToSocial(platform, text) {
+        let url = "";
+        if(platform === 'tg') {
+            url = `https://t.me/share/url?url=&text=${encodeURIComponent(text)}`;
+        } else if(platform === 'wa') {
+            url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+        }
+        window.open(url, '_blank');
+    }
+
     function sellItem(idx) {
+        if(currentTenant.data.shiftClosed) {
+            showCustomAlert("🔒 የሂሳብ መዝጊያ ቀርቧል", "የዕለቱ ፈረቃ ተዘግቷል! አዲስ ሽያጭ መመዝገብ አይቻልም።");
+            return;
+        }
         let item = currentTenant.data.inventory[idx];
         let remaining = item.qty - item.sold;
         
@@ -899,7 +1063,11 @@
             if (count > remaining) { showCustomAlert("ስህተት", "በክምችት ውስጥ ካለው ቀሪ እቃ ይበልጣል!"); return; }
             item.sold += count;
             saveAndRefresh();
-            sendTelegramAlert(`🛍️ የሽያጭ ማስታወቂያ (${currentUserRole === 'staff' ? 'በሰራተኛ' : 'በአሰሪ'})፦\nዕቃ፡ ${item.name}\nብዛት፡ ${count} ፍሬ\nዋጋ፡ ${item.price * count} ETB`);
+            
+            let totalVal = item.price * count;
+            sendTelegramAlert(`🛍️ የሽያጭ ማስታወቂያ (${currentUserRole === 'staff' ? 'በሰራተኛ' : 'በአሰሪ'})፦\nዕቃ፡ ${item.name}\nብዛት፡ ${count} ፍሬ\nዋጋ፡ ${totalVal} ETB`);
+            
+            generateDigitalReceipt(item.name, count, totalVal);
         });
     }
 
@@ -948,23 +1116,43 @@
         });
     }
 
+    // ማሻሻያ የተደረገበት የብር ማንሻ እና መመለሻ (Repayment Tracking) ሲስተም
     function openDrawerModal() {
-        showFormModal("ከሳጥን መልስ / ብር ማንሻ", [
-            { id: "reason", label: "ምክንያት / ለማን ተሰጠ (መለወጫ መልስ ከሆነ 'ለመልስ' ይበሉ)", type: "text", placeholder: "ምሳሌ፡ ለመልስ መለወጫ" },
+        showFormModal("ከሳጥን ብር ማንሻ / የተነሳ መመለሻ", [
+            { id: "actionType", label: "የድርጊት ዓይነት ይምረጡ፦", type: "select", options: [
+                { value: "withdraw", label: "💸 ከሳጥን ብር ማንሻ (Withdrawal)" },
+                { value: "return", label: "📥 የተነሳ ብር መመለሻ (Repayment/Return)" }
+            ]},
+            { id: "reason", label: "ምክንያት / ማስታወሻ", type: "text", placeholder: "ምሳሌ፡ ለመልስ መለወጫ / የወሰድኩትን መለስኩ" },
             { id: "amount", label: "የገንዘብ መጠን (ETB)", type: "number", placeholder: "0.00" }
         ], (res) => {
-            let amount = parseFloat(res.amount) || 0; let reason = res.reason.trim();
+            let amount = parseFloat(res.amount) || 0; 
+            let reason = res.reason.trim();
+            let action = res.actionType;
             if(!reason || amount <= 0) return;
-            let d = currentTenant.data || {}; if(!d.drawerLog) d.drawerLog = [];
-            d.drawerLog.push({ reason, amount, time: new Date().toLocaleTimeString('am-ET') });
-            currentTenant.data = d; saveAndRefresh();
-            sendTelegramAlert(`💸 ከሳጥን ገንዘብ ተነሳ (${currentUserRole === 'staff' ? 'በሰራተኛ' : 'በአሰሪ'})፦\nምክንያት፡ ${reason}\nመጠን፡ ${amount} ETB`);
+            
+            let d = currentTenant.data || {}; 
+            if(!d.drawerLog) d.drawerLog = [];
+            
+            // ብሩ ከተመለሰ በኔጌቲቭ ቫልዩ (-amount) ሴቭ እናደርገዋለን፤ ይህም ማታ ከሳጥን ሂሳብ ላይ ተቀናንሶ ትክክለኛውን ካሽ ያሳያል
+            let finalAmount = action === "withdraw" ? amount : -amount;
+            let displayType = action === "withdraw" ? "ገንዘብ ተነሳ" : "ገንዘብ ተመለሰ";
+            
+            d.drawerLog.push({ 
+                reason: `${action === "withdraw" ? "⚠️ [የተነሳ] " : "✅ [የተመለሰ] "} ${reason}`, 
+                amount: finalAmount, 
+                time: new Date().toLocaleTimeString('am-ET') 
+            });
+            
+            currentTenant.data = d; 
+            saveAndRefresh();
+            sendTelegramAlert(`💸 ከሳጥን ${displayType} (${currentUserRole === 'staff' ? 'በሰራተኛ' : 'በአሰሪ'})፦\nምክንያት፡ ${reason}\nመጠን፡ ${amount} ETB`);
         });
     }
 
     function configureBank() {
         if(currentUserRole === "staff") {
-            showCustomAlert("🏦 የባንክ ሂሳብ መረጃ ማያያዣ", `የአሰሪው የባንክ ሂሳብ ቁጥር (CBE/Telebirr)፦ ${currentTenant.bankAccount || "ያልተገናኘ"}\n\n*ማሳሰቢያ፦ የባንክ ቁጥሩን መቀየር የሚችለው አሰሪው ብቻ ነው።`);
+            showCustomAlert("🏦 የባንክ ሂሳብ መረጃ ማያያዣ", `የአሰሪው የባንክ ሂሳብ ቁጥር (CBE/Telebirr)፦ ${currentTenant.bankAccount || "ያልተገናኘ"}`);
             return;
         }
 
@@ -975,7 +1163,7 @@
         ], (res) => {
             currentTenant.telegramToken = res.telegramToken.trim();
             currentTenant.telegramChatId = res.telegramChatId.trim();
-            currentTenant.bankAccount = res.bankAccount || res.bankAccountNumber.trim();
+            currentTenant.bankAccount = res.bankAccountNumber.trim();
             saveAndRefresh();
             showCustomAlert("ተሳክቷል", "የማያያዣ መቼቶች በተሳካ ሁኔታ ተቀምጠዋል!");
         });
@@ -987,24 +1175,19 @@
         let p = document.getElementById('staffPass').value.trim();
         if(!u || !p) { showCustomAlert("ስህተት", "እባክዎ የተሟላ የሰራተኛ መግቢያ ይሙሉ!"); return; }
         
-        // [ማስተካከያ] የሰራተኛ ዩዘርኔም መደጋገም መከላከያ (Duplicate Staff Username Validation)
-        // 1. ከራሱ ከሱቅ ባለቤቱ (Tenant) ዩዘርኔም ጋር አንድ አይነት መሆን አይችልም
         if (u === currentTenant.username) {
             showCustomAlert("⚠️ ስህተት", "የሰራተኛው Username ከሱቅ ባለቤቱ Username ጋር አንድ አይነት መሆን አይችልም!");
             return;
         }
-        // 2. በሲስተሙ ውስጥ ካሉ ሌሎች ተከራዮች ወይም የሌላ ሱቅ ሰራተኞች ዩዘርኔም ጋር መደጋገም የለበትም
         if (localDB.tenants) {
             for (let key in localDB.tenants) {
                 let otherTenant = localDB.tenants[key];
-                // ሌላ ሱቅ ይሄንን ዩዘርኔም ለራሱ ባለቤትነት ከተጠቀመበት
                 if (otherTenant.username === u) {
                     showCustomAlert("⚠️ ስህተት", "ይህ ዩዘርኔም አስቀድሞ በሲስተሙ ውስጥ በሌላ የሱቅ ባለቤት ተይዟል!");
                     return;
                 }
-                // ሌላ ሱቅ ይሄንን ዩዘርኔም ለሰራተኛው ሰጥቶት ከሆነ (ከራሱ ሱቅ ውጭ)
                 if (otherTenant.username !== currentTenant.username && otherTenant.staffUser && otherTenant.staffUser === u) {
-                    showCustomAlert("⚠️ ስህተት", "ይህ ዩዘርኔም አስቀድሞ በሌላ ሱቅ ሰራተኛ ተይዟል! እባክዎ ይቀይሩት።");
+                    showCustomAlert("⚠️ ስህተት", "ይህ ዩዘርኔም አስቀድሞ በሌላ ሱቅ ሰራተኛ ተይዟል!");
                     return;
                 }
             }
@@ -1016,40 +1199,120 @@
         showCustomAlert("ተቀምጧል", "የሰራተኛ አካውንት በተሳካ ሁኔታ ተቀይሯል!");
     }
 
-    function startNewDaySession() {
-        if(currentUserRole === "staff") return;
-        showCustomConfirm("አዲስ ቀን መጀመር", "የዛሬውን ቀን ሂሳብ ዘግተው አዲስ ቀን መጀመር ይፈልጋሉ?", () => {
-            let d = currentTenant.data || {}; let session = d.sessionData || {};
-            let tSales = parseFloat(d.collectedCreditToday || 0);
-            let todayProfit = 0; let tExp = 0; let tDraw = 0; let inv = d.inventory || [];
-            
+    function triggerShiftReport() {
+        let d = currentTenant.data || {};
+        let session = d.sessionData || {};
+        
+        let sysSales = parseFloat(d.collectedCreditToday || 0);
+        let todayProfit = 0;
+        let inv = d.inventory || [];
+        inv.forEach(item => {
+            sysSales += (item.price * item.sold);
+            todayProfit += (item.price - item.cost) * item.sold;
+        });
+
+        showFormModal("🔒 የዕለት ሂሳብ ሪፖርት መዝጊያ ማቅረቢያ", [
+            { id: "reportedCash", label: "በእጅዎ የሚገኘውን ትክክለኛ የጥሬ ገንዘብ (Cash) መጠን ያስገቡ፦", type: "number", placeholder: "0.00" }
+        ], (res) => {
+            let reported = parseFloat(res.reportedCash) || 0;
+            let tExp = 0; let tDraw = 0;
             (d.expenses || []).forEach(e => tExp += parseFloat(e.amount) || 0);
             (d.drawerLog || []).forEach(dr => tDraw += parseFloat(dr.amount) || 0);
+
+            let expectedCash = ((parseFloat(session.initialFloat) || 0) + sysSales) - tExp - tDraw;
+            let variance = reported - expectedCash;
+            let statusText = variance === 0 ? "ትክክል (Balanced)" : `ልዩነት አለ (${variance} ETB)`;
+
+            d.shiftClosed = true;
+            d.reportedCash = reported;
+            d.variance = variance;
+            d.expectedCash = expectedCash;
+
+            document.getElementById('shiftStatusAlert').classList.add('hidden');
+            showCustomAlert("ሪፖርት ቀርቧል", `የዕለቱ ሂሳብ በተሳካ ሁኔታ ተዘጋጅቷል!\nሁኔታ፡ ${statusText}\nበሲስተሙ የሚጠበቅ ካሽ፡ ${expectedCash} ETB\nየቀረበው ካሽ፡ ${reported} ETB`);
+            
+            if(!d.history) d.history = [];
+            
+            let todayObj = new Date();
+            let yyyy = todayObj.getFullYear();
+            let mm = String(todayObj.getMonth() + 1).padStart(2, '0');
+            let dd = String(todayObj.getDate()).padStart(2, '0');
+            let formattedDate = `${yyyy}-${mm}-${dd}`;
+
+            d.history.push({
+                date: formattedDate, 
+                employee: session.employee || "ሰራተኛ",
+                sales: sysSales, 
+                profit: todayProfit - tExp, 
+                expenses: tExp, 
+                draws: tDraw,
+                reportedCash: reported,
+                expectedCash: expectedCash,
+                variance: variance
+            });
+            currentTenant.data = d;
+            saveAndRefresh();
+        });
+    }
+
+    function startNewDaySession() {
+        if(currentUserRole === "staff") return;
+        showCustomConfirm("አዲስ ቀን መጀመር", "የዛሬውን ቀን ሂሳብ ሙሉ በሙሉ አጽድተው ለአዲስ ቀን ማዘጋጀት ይፈልጋሉ?", () => {
+            let d = currentTenant.data || {};
+            let inv = d.inventory || [];
             
             inv.forEach(item => {
-                tSales += (item.price * item.sold);
-                todayProfit += (item.price - item.cost) * item.sold;
-                item.qty = Math.max(0, item.qty - item.sold); item.sold = 0;
+                item.qty = Math.max(0, item.qty - item.sold); 
+                item.sold = 0;
             });
 
-            let netProfit = todayProfit - tExp;
-            if(!d.history) d.history = [];
-            d.history.push({
-                date: session.date || new Date().toLocaleDateString('am-ET'), employee: session.employee || "ሰራተኛ",
-                sales: tSales, profit: netProfit, expenses: tExp, draws: tDraw
-            });
-
-            d.sessionActive = false; d.expenses = []; d.drawerLog = []; d.collectedCreditToday = 0;
-            currentTenant.data = d; saveAndRefresh(); checkMorningSession();
+            d.sessionActive = false; 
+            d.shiftClosed = false;
+            d.expenses = []; 
+            d.drawerLog = []; 
+            d.collectedCreditToday = 0;
+            currentTenant.data = d; 
+            saveAndRefresh(); 
+            checkMorningSession();
         });
     }
 
     function clearAllTenantData() {
         if(currentUserRole === "staff") return;
         showCustomConfirm("ሁሉንም ዳታ ማጽዳት", "ሁሉንም ዳታ ለማጥፋት እርግጠኛ ኖት?", () => {
-            currentTenant.data = { sessionActive: false, inventory: [], expenses: [], debts: [], drawerLog: [], history: [] };
+            currentTenant.data = { sessionActive: false, shiftClosed: false, inventory: [], expenses: [], debts: [], drawerLog: [], history: [] };
             saveAndRefresh(); checkMorningSession();
         });
+    }
+
+    function renderHistoryTable() {
+        let d = currentTenant.data || {};
+        let historyBody = document.getElementById('historyBody');
+        historyBody.innerHTML = '<tr><th>ቀን</th><th>ሰራተኛ</th><th>ሽያጭ</th><th>ትርፍ</th><th>ሪፖርት ካሽ</th><th>ልዩነት</th></tr>';
+        
+        let historyList = d.history || [];
+        let filterValue = document.getElementById('historyDateFilter').value; 
+
+        let filtered = historyList.filter(h => {
+            if(!filterValue) return true;
+            return h.date === filterValue;
+        });
+
+        if(filtered.length === 0) {
+            historyBody.innerHTML += '<tr><td colspan="6" style="text-align:center; color:#94a3b8;">በተፈለገው ቀን ምንም ታሪክ የለም</td></tr>';
+        } else {
+            filtered.forEach(h => {
+                let vColor = h.variance === 0 ? 'var(--success-color)' : 'var(--danger-color)';
+                historyBody.innerHTML += `<tr>
+                    <td><b>${h.date}</b></td>
+                    <td>${h.employee}</td>
+                    <td style="color:var(--success-color)">${h.sales}</td>
+                    <td style="color:var(--accent-color)"><b>${h.profit}</b></td>
+                    <td>${h.reportedCash || 0}</td>
+                    <td style="color:${vColor}"><b>${h.variance || 0}</b></td>
+                </tr>`;
+            });
+        }
     }
 
     function renderApp() {
@@ -1080,7 +1343,6 @@
             let profit = (item.price - item.cost) * item.sold;
             tSales += (item.price * item.sold); todayProfit += profit; currentTotalCapital += (item.cost * remaining);
             
-            // [ማስተካከያ] የተከራይ/ሰራተኛ ዕቃ በስም መፈለጊያ ሎጂክ
             if (query !== "" && !item.name.toLowerCase().includes(query)) return;
 
             let rowClass = remaining <= 3 ? 'low-stock-row' : '';
@@ -1123,6 +1385,7 @@
                 myChart.data.datasets[0].data = [currentTotalCapital, tSales, todayProfit - tExp];
                 myChart.update();
             }
+            renderHistoryTable();
         }
 
         let creditBody = document.getElementById('creditBody');
@@ -1151,31 +1414,17 @@
             drawBody.innerHTML += '<tr><td colspan="3" style="text-align:center; color:#94a3b8;">ምንም የተነሳ ገንዘብ የለም</td></tr>';
         } else {
             drawsList.forEach(dr => {
+                let isReturn = dr.amount < 0;
+                let displayAmt = isReturn ? Math.abs(dr.amount) + " ETB (መለሰ)" : dr.amount + " ETB";
+                let displayColor = isReturn ? "var(--success-color)" : "var(--purple-color)";
+                tbodyColor = `style="color:${displayColor}; font-weight:bold;"`;
+                
                 drawBody.innerHTML += `<tr>
                     <td>${dr.reason}</td>
-                    <td style="color:var(--purple-color); font-weight:bold;">${dr.amount} ETB</td>
+                    <td ${tbodyColor}>${displayAmt}</td>
                     <td>${dr.time}</td>
                 </tr>`;
             });
-        }
-
-        if(currentUserRole === "owner") {
-            let historyBody = document.getElementById('historyBody');
-            historyBody.innerHTML = '<tr><th>ቀን</th><th>ሰራተኛ</th><th>ሽያጭ</th><th>ትርፍ</th><th>ወጪ</th></tr>';
-            let historyList = d.history || [];
-            if(historyList.length === 0) {
-                historyBody.innerHTML += '<tr><td colspan="5" style="text-align:center; color:#94a3b8;">ምንም ያለፈ ታሪክ የለም</td></tr>';
-            } else {
-                historyList.forEach(h => {
-                    historyBody.innerHTML += `<tr>
-                        <td><b>${h.date}</b></td>
-                        <td>${h.employee}</td>
-                        <td style="color:var(--success-color)">${h.sales}</td>
-                        <td style="color:var(--accent-color)"><b>${h.profit}</b></td>
-                        <td>${h.expenses}</td>
-                    </tr>`;
-                });
-            }
         }
     }
 
@@ -1222,6 +1471,7 @@
                     initialFloat: parseFloat(res.initialFloat) || 0
                 };
                 d.sessionActive = true;
+                d.shiftClosed = false;
                 d.expenses = [];
                 d.drawerLog = [];
                 d.debts = d.debts || [];
@@ -1234,7 +1484,12 @@
         }
     }
 
-    function pushToFirebase() { db.ref('tirfe_system').set(localDB); }
+    function pushToFirebase() { 
+        if(isOnline) {
+            db.ref('tirfe_system').set(localDB); 
+        }
+    }
+    
     function openModalContainer() { document.getElementById('modalOverlay').classList.remove('hidden'); }
     
     function closeActiveModal() {
