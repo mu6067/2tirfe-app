@@ -1,10 +1,10 @@
-yehulgize mirchachn tirfe app
+yehulgize mrchachn tirfe app
 <!DOCTYPE html>
 <html lang="am">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ትርፌ የሱቅ መቆጣጠሪያ አፕሊኬሽን - Ultimate v6.1 (Autoblock Integrated)</title>
+    <title>ትርፌ የሱቅ መቆጣጠሪያ አፕሊኬሽን - Ultimate v6.2</title>
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -23,11 +23,7 @@ yehulgize mirchachn tirfe app
             --base-font-size: 14px;
         }
 
-        /* ገጽታዎች (Themes) */
         .theme-deepblue { --bg-color: #0b0f19; --card-bg: #151f32; --accent-color: #38bdf8; --success-color: #4ade80; }
-        .theme-emerald { --bg-color: #061e1a; --card-bg: #0b3c34; --accent-color: #2ec4b6; --success-color: #4ade80; }
-        .theme-purple { --bg-color: #1a0933; --card-bg: #2d1254; --accent-color: #a29bfe; --success-color: #00cec9; }
-        .theme-charcoal { --bg-color: #121212; --card-bg: #1e1e1e; --accent-color: #9b59b6; --success-color: #2ecc71; }
 
         * { 
             box-sizing: border-box; 
@@ -54,13 +50,10 @@ yehulgize mirchachn tirfe app
         
         .hidden { display: none !important; }
         
-        /* ረዳት ክፍሎች */
         .text-success { color: var(--success-color) !important; }
         .text-danger { color: var(--danger-color) !important; }
         .text-warning { color: var(--warning-color) !important; }
-        .text-purple { color: var(--purple-color) !important; }
         
-        /* የመግቢያ ክፍል */
         .login-box {
             width: 100%;
             max-width: 380px; 
@@ -87,9 +80,7 @@ yehulgize mirchachn tirfe app
             outline: none;
         }
         input:focus, select:focus { border-color: var(--accent-color); }
-        select option { background-color: var(--card-bg); color: white; }
 
-        /* ሄደሮች */
         .welcome-header {
             text-align: center; 
             margin-bottom: 20px; 
@@ -113,7 +104,6 @@ yehulgize mirchachn tirfe app
             border: 1px dashed var(--warning-color);
         }
         
-        /* ዳሽቦርድ */
         .dashboard {
             display: grid; 
             grid-template-columns: repeat(2, 1fr); 
@@ -131,7 +121,6 @@ yehulgize mirchachn tirfe app
         .card h3 { margin: 0 0 6px 0; font-size: 11px; color: #94a3b8; text-transform: uppercase; }
         .card p { margin: 0; font-size: 15px; font-weight: bold; color: var(--success-color); word-break: break-all; }
 
-        /* አዝራሮች */
         .actions { 
             display: grid; 
             grid-template-columns: repeat(2, 1fr); 
@@ -154,11 +143,7 @@ yehulgize mirchachn tirfe app
         .btn-add { background-color: var(--accent-color); color: #000; }
         .btn-sell { background-color: var(--success-color); color: #000; }
         .btn-expense { background-color: #f43f5e; color: #fff; }
-        .btn-credit { background-color: #f59e0b; color: #000; }
-        .btn-draw { background-color: var(--purple-color); color: #000; }
         .btn-config { background-color: #64748b; color: #fff; }
-        .btn-next-day { background-color: #a855f7; color: #fff; }
-        .btn-clear { background-color: var(--danger-color); color: #000; grid-column: span 2; }
         .btn-sm { padding: 6px 10px; font-size: 11px; border-radius: 6px; }
 
         .section-box { 
@@ -170,7 +155,7 @@ yehulgize mirchachn tirfe app
         }
         .section-box h2 { font-size: 1.1rem; margin-bottom: 12px; border-bottom: 2px solid var(--border-color); padding-bottom: 6px; color: var(--accent-color); }
 
-        /* ሰንጠረዦች */
+        /* ማስተካከያ የተደረገበት የሰንጠረዥ CSS ክፍል (ከ9235.jpg ላይ የተስተካከለ) */
         .table-responsive { 
             width: 100%; 
             overflow-x: auto; 
@@ -179,39 +164,31 @@ yehulgize mirchachn tirfe app
             -webkit-overflow-scrolling: touch;
         }
         table { 
-    width: 100%; 
-    border-collapse: collapse; 
-    min-width: 600px; 
-    background-color: var(--card-bg) !important; 
-}
-th, td { 
-    padding: 10px 12px; 
-    text-align: left; 
-    border-bottom: 1px solid var(--border-color); 
-    white-space: nowrap; 
-    font-size: 12px; 
-    color: var(--text-color) !important; 
-}
-th { 
-    background-color: rgba(0,0,0,0.5) !important; 
-    color: var(--accent-color) !important; 
-    font-weight: 600; 
-}
+            width: 100%; 
+            border-collapse: collapse; 
+            min-width: 600px; 
+            background-color: var(--card-bg) !important; 
+        }
+        th, td { 
+            padding: 10px 12px; 
+            text-align: left; 
+            border-bottom: 1px solid var(--border-color); 
+            white-space: nowrap; 
+            font-size: 12px; 
+            color: var(--text-color) !important; 
+        }
+        th { 
+            background-color: rgba(0,0,0,0.5) !important; 
+            color: var(--accent-color) !important; 
+            font-weight: 600; 
+        }
 
         .badge-danger { background: var(--danger-color); color: #000; padding: 2px 5px; border-radius: 4px; font-size: 10px; font-weight: bold; }
         .badge-success { background: var(--success-color); color: #000; padding: 2px 5px; border-radius: 4px; font-size: 10px; font-weight: bold; }
 
-        .grid-3 { display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 20px; }
         .profile-data { background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-color); font-size: 12px; }
         .profile-data label { font-weight: bold; color: #94a3b8; }
         .profile-data span { color: var(--warning-color); font-weight: bold; }
-
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(4px); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 15px; }
-        .modal-card { background-color: var(--card-bg); border-radius: 14px; width: 100%; max-width: 400px; padding: 20px; box-shadow: 0 15px 30px rgba(0,0,0,0.5); border: 1px solid var(--border-color); }
-        .modal-header { margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; }
-        .modal-header h3 { font-size: 1.1rem; color: var(--success-color); }
-        .modal-body { margin-bottom: 15px; }
-        .modal-footer { display: flex; justify-content: flex-end; gap: 8px; }
     </style>
 </head>
 <body class="theme-deepblue">
@@ -221,7 +198,7 @@ th {
     <!-- 1. የመግቢያ ገጽ -->
     <div id="loginPage" class="login-box">
         <h2>ትርፌ አፕ (Tirfe Tech)</h2>
-        <p>የኪራይና የሱቅ መቆጣጠሪያ ማዕከላዊ ሲስተም v6.1</p>
+        <p>የኪራይና የሱቅ መቆጣጠሪያ ማዕከላዊ ሲስተም v6.2</p>
         <input type="text" id="loginUser" placeholder="የተጠቃሚ ስም (Username)">
         <input type="password" id="loginPass" placeholder="የይለፍ ቃል (Password)">
         <button class="btn-sell btn-block" onclick="handleLogin()">🔒 ደህንነቱ የተጠበቀ መግቢያ</button>
@@ -293,14 +270,6 @@ th {
                 <h3>የዛሬ ትርፍ</h3>
                 <p id="todayNetProfit">0.00</p>
             </div>
-            <div class="card">
-                <h3>የወር ትርፍ</h3>
-                <p id="monthlyNetProfit" style="color: var(--warning-color);">0.00</p>
-            </div>
-            <div class="card">
-                <h3>ከሳጥን የተነሳ</h3>
-                <p id="totalDraws" style="color: var(--purple-color);">0.00</p>
-            </div>
             <div class="card" style="grid-column: span 2;">
                 <h3>ማታ በካሽ ሳጥን መገኘት ያለበት</h3>
                 <p id="totalInCash" style="color: #38bdf8; font-size: 20px;">0.00 ETB</p>
@@ -309,12 +278,7 @@ th {
 
         <div class="actions">
             <button class="btn-add" onclick="focusInventoryInput()">📦 አዲስ ዕቃ መዝግብ</button>
-            <button class="btn-expense" onclick="openExpenseModal()">📉 ወጪ መዝግብ</button>
-            <button class="btn-credit" onclick="openDebtModal()">💳 ዕዳ መዝግብ</button>
-            <button class="btn-draw" onclick="openDrawerModal()">💸 ከሳጥን ብር አንሳ</button>
-            <button class="btn-config" onclick="configureBank()">🏦 የባንክ አፕ ማያያዣ</button>
-            <button class="btn-next-day" onclick="startNewDaySession()">🔄 አዲስ ቀን ጀምር</button>
-            <button class="btn-clear" onclick="clearAllTenantData()">🗑️ ዳታ አጽዳ</button>
+            <button class="btn-config" onclick="logout()">🚪 ከአፑ ውጣ</button>
         </div>
 
         <!-- የዕቃዎች ዝርዝር ሰንጠረዥ -->
@@ -346,47 +310,17 @@ th {
             </div>
         </div>
 
-        <!-- የታችኛው መዝገቦች -->
-        <div class="grid-3">
-            <div class="section-box">
-                <h2>💳 የዕዳ መዝገብ</h2>
-                <div class="table-responsive"><table><tbody id="creditBody"></tbody></table></div>
-            </div>
-            <div class="section-box">
-                <h2>💸 ከሳጥን የተነሳ ገንዘብ</h2>
-                <div class="table-responsive"><table><tbody id="drawBody"></tbody></table></div>
-            </div>
-            <div class="section-box">
-                <h2>🔄 የቀደሙ ቀናት ታሪክ</h2>
-                <div class="table-responsive"><table><tbody id="historyBody"></tbody></table></div>
-            </div>
-        </div>
-
         <!-- መቼቶች እና ፕሮፋይል -->
         <div class="section-box">
             <h2>⚙️ መቼቶች እና ፕሮፋይል</h2>
             <div class="profile-data"><label>የሱቅ ስም፡</label> <span id="profShopName">-</span></div>
             <div class="profile-data"><label>የውል ማቂያ ቀን፡</label> <span id="profExpiry" style="color: var(--danger-color);">-</span></div>
-            <button class="btn-expense btn-block" style="margin-top: 20px; padding: 15px;" onclick="logout()">🚪 ከአፑ በሰላም ውጣ (Logout)</button>
         </div>
     </div>
 </div>
 
-<!-- ማዕከላዊ የሞዳል ሲስተም -->
-<div id="modalOverlay" class="modal-overlay hidden">
-    <div id="alertModal" class="modal-card hidden">
-        <div class="modal-header"><h3 id="alertTitle" class="text-warning">መልዕክት</h3></div>
-        <div class="modal-body"><p id="alertMessage"></p></div>
-        <div class="modal-footer"><button class="btn-add" onclick="closeActiveModal()">እሺ</button></div>
-    </div>
-    <div id="confirmModal" class="modal-card hidden">
-        <div class="modal-header"><h3 id="confirmTitle" class="text-danger">እርግጠኛ ኖት?</h3></div>
-        <div class="modal-body"><p id="confirmMessage"></p></div>
-        <div class="modal-footer"><button class="btn-expense" id="confirmYesBtn">አዎ</button><button class="btn-add" onclick="closeActiveModal()">አይ</button></div>
-    </div>
-</div>
-
 <script>
+    // Firebase ማገናኛ (ካለህበት ዳታቤዝ ጋር የተገናኘ)
     const firebaseConfig = { databaseURL: "https://tirfe-app-v2-300c2-default-rtdb.firebaseio.com/" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
@@ -394,6 +328,7 @@ th {
     let localDB = { tenants: {} };
     let currentTenant = null;
 
+    // ዳታ ከፊልድቤዝ በሪልታይም ማንበቢያ
     db.ref('tirfe_system').on('value', (snapshot) => {
         if(snapshot.exists()) {
             localDB = snapshot.val();
@@ -410,29 +345,8 @@ th {
     });
 
     function pushToFirebase() { db.ref('tirfe_system').set(localDB); }
-    function openModalContainer() { document.getElementById('modalOverlay').classList.remove('hidden'); }
-    function closeActiveModal() {
-        document.getElementById('modalOverlay').classList.add('hidden');
-        document.querySelectorAll('.modal-card').forEach(m => m.classList.add('hidden'));
-    }
 
-    function showCustomAlert(title, message, callback) {
-        document.getElementById('alertTitle').innerText = title;
-        document.getElementById('alertMessage').innerText = message;
-        openModalContainer();
-        document.getElementById('alertModal').classList.remove('hidden');
-        document.querySelector('#alertModal .btn-add').onclick = function() { closeActiveModal(); if(callback) callback(); };
-    }
-
-    function showCustomConfirm(title, message, onConfirm) {
-        document.getElementById('confirmTitle').innerText = title;
-        document.getElementById('confirmMessage').innerText = message;
-        openModalContainer();
-        document.getElementById('confirmModal').classList.remove('hidden');
-        document.getElementById('confirmYesBtn').onclick = function() { closeActiveModal(); if(onConfirm) onConfirm(); };
-    }
-
-    // መግቢያ እና አውቶማቲክ የኪራይ ቀን ማረጋገጫ (Autoblock)
+    // መግቢያ እና አውቶማቲክ ብሎክ ማረጋገጫ
     function handleLogin() {
         let user = document.getElementById('loginUser').value.trim().toLowerCase();
         let pass = document.getElementById('loginPass').value.trim();
@@ -448,7 +362,7 @@ th {
         let tenant = localDB.tenants ? localDB.tenants[user] : null;
         if(tenant && String(tenant.password).trim() === pass) {
             
-            // የአውቶብሎክ ማረጋገጫ (ኪራይ ማለፉን ቼክ ማድረግ)
+            // የውል ቀን ማለፉን ማረጋገጫ (Autoblock)
             if(tenant.expiryDate) {
                 let today = new Date();
                 today.setHours(0,0,0,0);
@@ -480,11 +394,8 @@ th {
         let d = currentTenant.data || {};
         if (!d.sessionActive) {
             let today = new Date();
-            let employee = prompt("የሰራተኛ ስም ያስገቡ፦") || "ሰራተኛ";
-            let floatMoney = parseFloat(prompt("መነሻ ገንዘብ (Float)፦")) || 0;
-            
-            d.sessionData = { date: today.toLocaleDateString('am-ET'), loginTime: today.toLocaleTimeString('am-ET', {hour:'2-digit', minute:'2-digit'}), employee, initialFloat: floatMoney };
-            d.sessionActive = true; d.expenses = []; d.collectedCreditToday = 0;
+            d.sessionData = { date: today.toLocaleDateString('am-ET'), loginTime: today.toLocaleTimeString('am-ET', {hour:'2-digit', minute:'2-digit'}), initialFloat: 0 };
+            d.sessionActive = true; d.inventory = d.inventory || [];
             currentTenant.data = d; saveAndRefresh();
         }
         renderApp();
@@ -497,7 +408,7 @@ th {
         let contractType = document.getElementById('newContractType').value;
         let expiryDate = document.getElementById('newExpiryDate').value;
 
-        if(!shop || !user || !pass || !expiryDate) { alert("እባክዎ ሁሉንም መረጃዎች (የማቂያ ቀንን ጨምሮ) ይሙሉ!"); return; }
+        if(!shop || !user || !pass || !expiryDate) { alert("እባክዎ ሁሉንም መረጃዎች ይሙሉ!"); return; }
         
         localDB.tenants[user] = { 
             shopName: shop, 
@@ -506,11 +417,10 @@ th {
             contractType: contractType,
             expiryDate: expiryDate,
             status: "active", 
-            data: { sessionActive: false, inventory: [], expenses: [], debts: [], drawerLog: [], history: [] } 
+            data: { sessionActive: false, inventory: [] } 
         };
         pushToFirebase(); renderAdminPanel();
         
-        // ፎርሙን ማጽዳት
         document.getElementById('newShopName').value = ''; document.getElementById('newUsername').value = ''; 
         document.getElementById('newPassword').value = ''; document.getElementById('newExpiryDate').value = '';
     }
@@ -541,7 +451,7 @@ th {
         pushToFirebase(); renderAdminPanel();
     }
 
-    function deleteTenant(user) { if(confirm("ይህንን ተከራይ ሙሉ በኋላ ለማጥፋት እርግጠኛ ኖት?")) { delete localDB.tenants[user]; pushToFirebase(); renderAdminPanel(); } }
+    function deleteTenant(user) { if(confirm("ይህንን ተከራይ ለማጥፋት እርግጠኛ ኖት?")) { delete localDB.tenants[user]; pushToFirebase(); renderAdminPanel(); } }
     function logout() { currentTenant = null; document.getElementById('adminPage').classList.add('hidden'); document.getElementById('appPage').classList.add('hidden'); document.getElementById('loginPage').classList.remove('hidden'); }
     function saveAndRefresh() { localDB.tenants[currentTenant.username] = currentTenant; pushToFirebase(); renderApp(); }
     function focusInventoryInput() { document.getElementById('itemName').focus(); }
@@ -568,19 +478,18 @@ th {
 
     function renderApp() {
         let d = currentTenant.data || {}; let session = d.sessionData || {};
-        if(d.sessionActive) { document.getElementById('sessionDisplay').innerText = `📅 ${session.date} | 👤 ${session.employee} | 💰 መነሻ: ${session.initialFloat}`; }
+        if(d.sessionActive) { document.getElementById('sessionDisplay').innerText = `📅 ዕለት፦ ${session.date} | ሁኔታ፦ ክፍት`; }
         let tbody = document.getElementById('inventoryBody'); tbody.innerHTML = '';
-        let collectedCredit = parseFloat(d.collectedCreditToday) || 0;
-        let tSales = collectedCredit, todayProfit = 0, tExp = 0, tDraw = 0, currentTotalCapital = 0;
+        let tSales = 0, todayProfit = 0, currentTotalCapital = 0;
         let inv = d.inventory || [];
         inv.forEach((item, idx) => {
             let remaining = Math.max(0, item.qty - item.sold); let profit = (item.price - item.cost) * item.sold;
             tSales += (item.price * item.sold); todayProfit += profit; currentTotalCapital += (item.cost * remaining);
             tbody.innerHTML += `<tr><td><strong>${item.name}</strong></td><td>${item.cost}</td><td>${item.price}</td><td>${item.qty}</td><td><button class="btn-sell btn-sm" onclick="sellItem(${idx})">➕</button> <b>${item.sold}</b></td><td style="color:#f87171;font-weight:bold;">${remaining}</td><td>${profit}</td><td><button class="btn-expense btn-sm" onclick="deleteInventoryItem(${idx})">🗑️</button></td></tr>`;
         });
-        document.getElementById('totalCapital').innerText = currentTotalCapital.toFixed(1);
-        document.getElementById('todayNetProfit').innerText = (todayProfit - tExp).toFixed(1);
-        document.getElementById('totalInCash').innerText = ((parseFloat(session.initialFloat)||0) + tSales - tExp - tDraw).toFixed(1) + " ETB";
+        document.getElementById('totalCapital').innerText = currentTotalCapital.toFixed(1) + " ETB";
+        document.getElementById('todayNetProfit').innerText = todayProfit.toFixed(1) + " ETB";
+        document.getElementById('totalInCash').innerText = tSales.toFixed(1) + " ETB";
     }
     function deleteInventoryItem(idx) { currentTenant.data.inventory.splice(idx, 1); saveAndRefresh(); }
 </script>
