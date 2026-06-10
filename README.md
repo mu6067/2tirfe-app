@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, minimum-scale=0.5, maximum-scale=3.0">
-    <title>ትርፌ የሱቅ መቆጣጠሪያ አፕሊኬሽን - Ultimate v9.2</title>
+    <title>ትርፌ የሱቅ መቆጣጠሪያ አፕሊኬሽን - Ultimate v10.0</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -241,7 +241,6 @@
         .offline-tag { background: #ef4444; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; animation: blink 1.5s infinite; }
         @keyframes blink { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
 
-        /* ለደረሰኝ ውብ ቴብል ዲዛይን ስታይል */
         .receipt-container {
             background-color: #ffffff;
             color: #333333;
@@ -259,6 +258,12 @@
         .receipt-summary { margin-top: 15px; border-top: 2px dashed #333; padding-top: 8px; text-align: right; font-size: 0.95rem; font-weight: bold; color: #111; }
         .receipt-footer { text-align: center; margin-top: 20px; font-size: 0.8rem; color: #777; font-style: italic; }
         .receipt-actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+
+        @media print {
+            body * { visibility: hidden; }
+            #printableReceiptArea, #printableReceiptArea * { visibility: visible; }
+            #printableReceiptArea { position: absolute; left: 0; top: 0; width: 100%; box-shadow: none; padding: 0; }
+        }
     </style>
 </head>
 <body class="theme-deepblue">
@@ -268,15 +273,15 @@
     <div id="welcomeGateway" class="gateway-box">
         <h2>እንኳን ደህና መጡ! <span id="syncIndicator" class="hidden offline-tag">Offline ሞድ</span></h2>
         <p>እባክዎ መተግበሪያውን በምን ሁኔታ መጠቀም እንደሚፈልጉ ይምረጡ፦</p>
-        <button class="gateway-btn" onclick="switchView('buyerPage')">🛍️ እኔ ገዢ ነኝ </button>
-        <button class="gateway-btn" onclick="showLoginSection('admin')">👑 እኔ አከራይ ነኝ </button>
-        <button class="gateway-btn" onclick="showLoginSection('merchant')">💼 እኔ ሱቅ ባለቤት ነኝ </button>
-        <button class="gateway-btn" onclick="showLoginSection('staff')">🛠️ እኔ ሰራተኛ ነኝ </button>
+        <button class="gateway-btn" onclick="switchView('buyerPage')">🛍️ እኔ ገዢ ነኝ (የዕቃዎች ማሳያ ማውጫ)</button>
+        <button class="gateway-btn" onclick="checkAdminPrivacyKey()">👑 እኔ አከራይ ነኝ (Main Owner)</button>
+        <button class="gateway-btn" onclick="showLoginSection('merchant')">💼 እኔ ሱቅ ባለቤት ነኝ (Tenant Owner)</button>
+        <button class="gateway-btn" onclick="showLoginSection('staff')">🛠️ እኔ ሰራተኛ ነኝ (Store Staff)</button>
     </div>
 
     <div id="loginPage" class="login-box hidden">
         <h2 id="loginTitle">ትርፌ አፕ (Tirfe Tech)</h2>
-        <p id="loginDesc">የኪራይና የሱቅ መቆጣጠሪያ ማዕከላዊ ሲስተም v9.2</p>
+        <p id="loginDesc">የኪራይና የሱቅ መቆጣጠሪያ ማዕከላዊ ሲስተም v10.0</p>
         <input type="text" id="loginUser" placeholder="የተጠቃሚ ስም (Username)">
         <input type="password" id="loginPass" placeholder="የይለፍ ቃል / ጊዜያዊ ኮድ">
         <button class="btn-sell btn-block" onclick="handleLogin()">🔒 ደህንነቱ የተጠበቀ መግቢያ</button>
@@ -287,7 +292,7 @@
     <div id="buyerPage" class="hidden">
         <div class="welcome-header">
             <h1>🛍️ የዕቃዎችና የሱቆች ማውጫ መድረክ</h1>
-            <p>በአቅራቢያዎ ያሉ ሱቆችን ምርቶች፣ ዋጋዎች እና አድራሻ እዚህ ያግኙ。</p>
+            <p>በአቅራቢያዎ ያሉ ሱቆችን ምርቶች፣ ዋጋዎች እና አድራሻ እዚህ ያግኙ።</p>
             <button class="btn-expense" style="margin-top:10px;" onclick="goToGateway()">⬅️ ወደ ዋናው ምርጫ ተመለስ</button>
         </div>
         <div class="section-box">
@@ -303,7 +308,7 @@
                             <th>የሱቅ ስም</th>
                             <th>መሸጫ ዋጋ</th>
                             <th>የሻጭ ስልክ ቁጥር</th>
-                            <th>ሱቁ ያለበት ሎኬشن</th>
+                            <th>ሱቁ ያለበት ሎኬሽን</th>
                         </tr>
                     </thead>
                     <tbody id="buyerTableBody"></tbody>
@@ -317,6 +322,21 @@
             <h1>የባለቤቱ ማዕከላዊ ቁጥጥር ፓነል</h1>
             <p>እዚህ ገጽ ላይ አዳዲስ ተከራዮችን መመዝገብ፣ የውል ሁኔታ መወሰን እና ማስተዳደር ይችላሉ።</p>
             <button class="btn-expense" style="margin-top: 15px; width:100%;" onclick="logout()">🚪 ከሲስተሙ ውጣ</button>
+        </div>
+
+        <div class="dashboard" style="margin-bottom: 20px;">
+            <div class="card" style="border-left: 4px solid var(--accent-color);">
+                <h3>ጠቅላላ ተከራዮች</h3>
+                <p id="adminTotalTenants">0</p>
+            </div>
+            <div class="card" style="border-left: 4px solid var(--success-color);">
+                <h3>ንቁ ተከራዮች</h3>
+                <p id="adminActiveTenants">0</p>
+            </div>
+            <div class="card" style="border-left: 4px solid var(--warning-color);">
+                <h3>ጠቅላላ የተሰበሰበ ክፍያ</h3>
+                <p id="adminTotalFees">0.00 ETB</p>
+            </div>
         </div>
 
         <div class="section-box">
@@ -333,7 +353,10 @@
                 <input type="text" id="newTelegram" placeholder="የቴሌግራም መግቢያ (@username)">
                 <input type="text" id="newMapsLink" placeholder="የሱቅ ጎግል ማፕ ሊንክ (Google Maps URL)">
             </div>
-            <input type="text" id="newAddress" placeholder="የመኖሪያ/የሱቅ አድራሻ">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <input type="text" id="newAddress" placeholder="የመኖሪያ/የሱቅ አድራሻ">
+                <input type="number" id="newRegistrationFee" placeholder="የመመዝገቢያ ክፍያ (Registration Fee)">
+            </div>
             
             <label style="font-size: 0.85rem; color: var(--accent-color); display:block; margin-top: 8px;">የውል ዓይነት (Contract Type)፦</label>
             <select id="newContractType">
@@ -359,7 +382,7 @@
                             <th>የሱቅ ስም</th>
                             <th>የተከራይ መገለጫ (Profile)</th>
                             <th>የመግቢያ ዝርዝር / ኮድ</th>
-                            <th>የውል ዓይነት</th>
+                            <th>የውል ዓይነት / ክፍያ</th>
                             <th>የማቂያ ቀን</th>
                             <th>የአሁን ሁኔታ</th>
                             <th>እርምጃዎች</th>
@@ -443,6 +466,26 @@
             </div>
         </div>
 
+        <div class="section-box">
+            <h2>🧾 የደረሰኞች ማህደር (Receipt History)</h2>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ደረሰኝ ID</th>
+                            <th>ቀን</th>
+                            <th>የዕቃ ስም</th>
+                            <th>ብዛት</th>
+                            <th>ጠቅላላ ዋጋ</th>
+                            <th>የሸጠው ሰው</th>
+                            <th>እርምጃ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="receiptHistoryTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
         <div class="grid-3">
             <div class="section-box">
                 <h2>💳 የዕዳ መዝገብ</h2>
@@ -476,6 +519,7 @@
 
         <div class="section-box">
             <h2>⚙️ መቼቶች እና ፕሮፋይል</h2>
+            <button class="btn-add btn-block" style="margin-bottom: 12px; padding: 10px;" onclick="openTenantProfileEditor()">⚙️ የሱቅ መረጃ ማስተካከያ</button>
             <div class="profile-data"><label>የሱቅ ስም፡</label> <span id="profShopName">-</span></div>
             <div class="profile-data" id="expiryRowOwner"><label>የውል ማቂያ ቀን፡</label> <span id="profExpiry" style="color: var(--danger-color);">-</span></div>
             
@@ -568,7 +612,12 @@
         fetch(url).catch(err => console.log("Telegram Error: ", err));
     }
 
+    // መተግበሪያው ሲከፈት አውቶማቲክ ሎግኢን (Keep Me Logged In) ቼክ ማድረጊያ ሎጂክ
     loadLocalStorageBackup();
+    
+    // መጀመሪያ ከ local ሌታቤዝ አውቶማቲክ መግቢያ ካለ ቼክ ይደረጋል
+    checkAutomaticLogin();
+
     db.ref('tirfe_system').on('value', (snapshot) => {
         if(snapshot.exists()) {
             localDB = snapshot.val();
@@ -589,6 +638,23 @@
         isOnline = false;
         handleOnlineStatus();
     });
+
+    function checkAutomaticLogin() {
+        let savedSession = localStorage.getItem('tirfe_active_session');
+        if (savedSession) {
+            let session = JSON.parse(savedSession);
+            currentUserRole = session.role;
+            currentLoginMode = session.loginMode;
+            
+            if (session.role === 'admin') {
+                setTimeout(() => { switchView('adminPage'); renderAdminPanel(); }, 300);
+            } else if (localDB.tenants && localDB.tenants[session.username]) {
+                let t = localDB.tenants[session.username];
+                currentTenant = t;
+                setTimeout(() => { launchApp(t); }, 300);
+            }
+        }
+    }
 
     setInterval(() => {
         let now = new Date();
@@ -615,6 +681,19 @@
 
         document.getElementById(targetId).classList.remove('hidden');
         if (targetId === 'buyerPage') renderBuyerCatalog();
+    }
+
+    // የአከራይ ገጽን ለመክፈት ሲሞከር ማስተር ሴኪዩሪቲ ኮድ መቆጣጠሪያ
+    function checkAdminPrivacyKey() {
+        showFormModal("🔒 የማስተር ሴኪዩሪቲ ማረጋገጫ", [
+            { id: "masterKey", label: "እባክዎ የአከራይ ማስተር ሴኪዩሪቲ ኮድ (Master Security Key) ያስገቡ፦", type: "password", placeholder: "ማስተር ኮድ" }
+        ], (res) => {
+            if (res.masterKey === "tirfe-secure-2026") {
+                showLoginSection('admin');
+            } else {
+                showCustomAlert("⛔ መግባት አልተፈቀደም", "ያስገቡት ማስተር ሴኪዩሪቲ ኮድ የተሳሳተ ስለሆነ ገጹን መክፈት አይችሉም!");
+            }
+        });
     }
 
     function showLoginSection(mode) {
@@ -651,6 +730,7 @@
 
         if(currentLoginMode === 'admin') {
             if(user === "admin" && pass === "admin123") {
+                localStorage.setItem('tirfe_active_session', JSON.stringify({ role: 'admin', loginMode: 'admin', username: 'admin' }));
                 switchView('adminPage');
                 renderAdminPanel();
             } else {
@@ -684,6 +764,7 @@
                             localDB.tenants[user] = tenant;
                             pushToFirebase();
                             currentUserRole = "owner";
+                            localStorage.setItem('tirfe_active_session', JSON.stringify({ role: 'owner', loginMode: 'merchant', username: user }));
                             launchApp(tenant);
                         });
                         return;
@@ -694,6 +775,7 @@
                 } else {
                     if (String(tenant.password).trim() === pass) {
                         currentUserRole = "owner";
+                        localStorage.setItem('tirfe_active_session', JSON.stringify({ role: 'owner', loginMode: 'merchant', username: user }));
                         launchApp(tenant);
                         return;
                     }
@@ -710,6 +792,7 @@
                     if (t.staffUser && t.staffUser === user && String(t.staffPass).trim() === pass) {
                         if (isTenantExpired(t, error)) return;
                         currentUserRole = "staff";
+                        localStorage.setItem('tirfe_active_session', JSON.stringify({ role: 'staff', loginMode: 'staff', username: t.username }));
                         launchApp(t);
                         return;
                     }
@@ -739,7 +822,6 @@
     function launchApp(tenant) {
         currentTenant = tenant;
         document.getElementById('loginPage').classList.add('hidden');
-        document.getElementById('appPage').removeclassList = "";
         document.getElementById('appPage').classList.remove('hidden');
         
         document.getElementById('shopTitle').innerText = tenant.shopName + (currentUserRole === "staff" ? " (የሰራተኛ ገጽ)" : " (የባለቤት ገጽ)");
@@ -825,6 +907,7 @@
         let telegram = document.getElementById('newTelegram').value.trim();
         let mapsLink = document.getElementById('newMapsLink').value.trim();
         let address = document.getElementById('newAddress').value.trim();
+        let registrationFee = parseFloat(document.getElementById('newRegistrationFee').value) || 0;
         let contractType = document.getElementById('newContractType').value;
         let expiryDate = document.getElementById('newExpiryDate').value;
 
@@ -850,9 +933,10 @@
             codeCreatedAt: timestampNow,
             isActivated: false,
             contractType: contractType, expiryDate: expiryDate,
+            registrationFee: registrationFee,
             status: "active", theme: "theme-deepblue",
             staffUser: "", staffPass: "",
-            data: { sessionActive: false, shiftClosed: false, inventory: [], expenses: [], debts: [], drawerLog: [], history: [] } 
+            data: { sessionActive: false, shiftClosed: false, inventory: [], expenses: [], debts: [], drawerLog: [], history: [], receipts: [] } 
         };
         pushToFirebase(); renderAdminPanel();
         
@@ -860,14 +944,67 @@
         document.getElementById('newUsername').value = ''; document.getElementById('newPhone').value = ''; 
         document.getElementById('newTelegram').value = ''; document.getElementById('newMapsLink').value = '';
         document.getElementById('newAddress').value = ''; document.getElementById('newExpiryDate').value = '';
+        document.getElementById('newRegistrationFee').value = '';
+    }
+
+    // በአከራይ ገጽ ላይ ለእያንዳንዱ ተከራይ የመረጃ ማሻሻያ (Edit System) ሎጂክ
+    function openAdminTenantEditor(user) {
+        let t = localDB.tenants[user];
+        showFormModal(`✍️ የተከራይ መረጃ ማሻሻያ (${t.shopName})`, [
+            { id: "shopName", label: "የሱቅ ስም", type: "text", defaultValue: t.shopName },
+            { id: "fullName", label: "የተከራይ ሙሉ ስም", type: "text", defaultValue: t.fullName },
+            { id: "phone", label: "ስልክ ቁጥር", type: "text", defaultValue: t.phone },
+            { id: "telegram", label: "ቴሌግራም", type: "text", defaultValue: t.telegram },
+            { id: "mapsLink", label: "ጎግል ማፕ ሊንክ", type: "text", defaultValue: t.googleMapsLink || "" },
+            { id: "address", label: "አድራሻ", type: "text", defaultValue: t.address },
+            { id: "registrationFee", label: "የመመዝገቢያ/ኪራይ ክፍያ (ETB)", type: "number", defaultValue: t.registrationFee || 0 },
+            { id: "expiryDate", label: "የውል ማቂያ ቀን", type: "date", defaultValue: t.expiryDate }
+        ], (res) => {
+            t.shopName = res.shopName.trim();
+            t.fullName = res.fullName.trim();
+            t.phone = res.phone.trim();
+            t.telegram = res.telegram.trim();
+            t.googleMapsLink = res.mapsLink.trim();
+            t.address = res.address.trim();
+            t.registrationFee = parseFloat(res.registrationFee) || 0;
+            t.expiryDate = res.expiryDate;
+            
+            localDB.tenants[user] = t;
+            pushToFirebase();
+            renderAdminPanel();
+            showCustomAlert("ተሳክቷል", "የተከራዩ መረጃ በተሳካ ሁኔታ ተሻሽሏል!");
+        });
+    }
+
+    // ተከራይ በራሱ ገጽ ላይ የራሱን የሱቅ መረጃ ማስተካከል የሚችልበት ፈንክሽን
+    function openTenantProfileEditor() {
+        showFormModal("⚙️ የሱቅ መረጃ ማስተካከያ", [
+            { id: "shopName", label: "የሱቅ ስም", type: "text", defaultValue: currentTenant.shopName },
+            { id: "phone", label: "የሱቅ ስልክ ቁጥር", type: "text", defaultValue: currentTenant.phone },
+            { id: "mapsLink", label: "የጎግል ማፕ ሊንክ (Google Maps)", type: "text", defaultValue: currentTenant.googleMapsLink || "" }
+        ], (res) => {
+            currentTenant.shopName = res.shopName.trim();
+            currentTenant.phone = res.phone.trim();
+            currentTenant.googleMapsLink = res.mapsLink.trim();
+            saveAndRefresh();
+            showCustomAlert("ተሳክቷል", "የሱቅዎ መረጃ በተሳካ ሁኔታ ተስተካክሏል!");
+        });
     }
 
     function renderAdminPanel() {
         let tbody = document.getElementById('tenantTableBody'); tbody.innerHTML = '';
         let query = document.getElementById('adminSearchInput') ? document.getElementById('adminSearchInput').value.trim().toLowerCase() : "";
 
+        let totalTenants = 0;
+        let activeTenants = 0;
+        let totalFeesCollected = 0;
+
         Object.keys(localDB.tenants).forEach(key => {
             let t = localDB.tenants[key];
+            totalTenants++;
+            if (t.status === "active") activeTenants++;
+            totalFeesCollected += (parseFloat(t.registrationFee) || 0);
+
             if (query !== "" && !t.username.toLowerCase().includes(query)) return;
 
             let statusBadge = t.status === "active" ? `<span class="badge-success">Active</span>` : `<span class="badge-danger">Blocked</span>`;
@@ -881,21 +1018,28 @@
             }
             
             let loginInfo = `👤 አባል ስም: <code>${t.username}</code><br>${codeDisplay}<br>🛠️ ሰራተኛ: <code>${t.staffUser || '-'}</code>`;
+            let contractDisplay = `<span>${t.contractType || 'በወር'}</span><br><b class="text-warning">${t.registrationFee || 0} ETB</b>`;
 
             tbody.innerHTML += `<tr>
                 <td><b>${t.shopName}</b></td>
                 <td>${profileInfo}</td>
                 <td>${loginInfo}</td>
-                <td><span>${t.contractType || 'በወር'}</span></td>
+                <td>${contractDisplay}</td>
                 <td style="color:var(--danger-color)"><b>${t.expiryDate || '-'}</b></td>
                 <td>${statusBadge}</td>
                 <td>
+                    <button class="btn-add btn-sm" onclick="openAdminTenantEditor('${t.username}')">✍️ አሻሽል (Edit)</button>
                     <button class="btn-config btn-sm" onclick="toggleTenantStatus('${t.username}')">ሁኔታ ቀይር</button>
                     <button class="btn-expense btn-sm" onclick="deleteTenant('${t.username}')">Delete</button>
                     <button class="btn-add btn-sm" style="margin-top:4px;" onclick="regenerateTenantCode('${t.username}')">🔄 አዲስ ኮድ</button>
                 </td>
             </tr>`;
         });
+
+        // የአከራይ ዳሽቦርድ መቆጣጠሪያ ካርዶችን ዳታ መሙያ
+        document.getElementById('adminTotalTenants').innerText = totalTenants;
+        document.getElementById('adminActiveTenants').innerText = activeTenants;
+        document.getElementById('adminTotalFees').innerText = totalFeesCollected.toFixed(1) + " ETB";
     }
 
     function regenerateTenantCode(user) {
@@ -923,8 +1067,10 @@
         });
     }
 
+    // ሲስተሙን ሙሉ በሙሉ ለቆ መውጫና ሴሽን ማጥፊያ
     function logout() { 
         currentTenant = null; 
+        localStorage.removeItem('tirfe_active_session');
         switchView('welcomeGateway');
     }
 
@@ -965,19 +1111,36 @@
         document.getElementById('itemPrice').value = ''; document.getElementById('itemQty').value = '';
     }
 
-    // ማሻሻያ የተደረገበት ቴብል ዲዛይን ያለው ዲጂታል ደረሰኝ ማሳያ፣ PDF ማውረጃ እና ማጋሪያ አማራጮች
-    function generateDigitalReceipt(itemName, count, totalVal) {
-        let recId = Math.floor(10000 + Math.random() * 90000);
+    // የደረሰኝ ማሻሻያዎች፣ የፕሪንት ማሽን ማገናኛ እና የደረሰኝ ታሪክ መመልከቻ ሎጂክ
+    function generateDigitalReceipt(itemName, count, totalVal, recId = null, sellerRole = null, saveToHistory = true) {
+        if (!recId) recId = Math.floor(10000 + Math.random() * 90000);
         let dateStr = new Date().toLocaleDateString('am-ET');
-        let rawTextForShare = `======= ${currentTenant.shopName.toUpperCase()} =======\nደረሰኝ ቁጥር: #${recId}\nቀን: ${dateStr}\n---------------------------\nዕቃ: ${itemName}\nብዛት: ${count}\nጠቅላላ ዋጋ: ${totalVal} ETB\n---------------------------\nእናመሰግናለን!`;
+        let currentSeller = sellerRole || (currentUserRole === 'staff' ? 'ሰራተኛ (Employee)' : 'ባለቤት (Employer)');
+        
+        let rawTextForShare = `======= ${currentTenant.shopName.toUpperCase()} =======\nደረሰኝ ቁጥር: #${recId}\nየሸጠው ሰው: ${currentSeller}\nቀን: ${dateStr}\n---------------------------\nዕቃ: ${itemName}\n¼ዛት: ${count}\nጠቅላላ ዋጋ: ${totalVal} ETB\n---------------------------\nእናመሰግናለን!`;
 
-        // በሞዳል ውስጥ የሚቀመጥ ውብ የደረሰኝ HTML ቴብል መዋቅር
+        if (saveToHistory && !currentTenant.data.receipts) {
+            currentTenant.data.receipts = [];
+        }
+        if (saveToHistory) {
+            currentTenant.data.receipts.push({
+                recId: recId,
+                date: dateStr,
+                itemName: itemName,
+                count: count,
+                totalVal: totalVal,
+                seller: currentSeller
+            });
+            saveAndRefresh();
+        }
+
         let receiptHTML = `
         <div class="receipt-container" id="printableReceiptArea">
             <div class="receipt-header">
                 <h4>${currentTenant.shopName}</h4>
                 <p>ዲጂታል የሽያጭ ደረሰኝ</p>
                 <p><b>ቁጥር (No):</b> #${recId} | <b>ቀን:</b> ${dateStr}</p>
+                <p><b>የሻጭ ማንነት:</b> ${currentSeller}</p>
             </div>
             <table class="receipt-table">
                 <thead>
@@ -1005,10 +1168,10 @@
             </div>
         </div>
         <div class="receipt-actions-grid">
-            <button class="btn-sell" onclick="downloadReceiptPDF('${itemName}_${recId}')">📥 ፒዲኤፍ (PDF)</button>
-            <button class="btn-config" style="background:#0088cc; color:white;" onclick="shareToSocial('tg', \`${rawTextForShare}\`)">✈️ ቴሌግራም</button>
-            <button class="btn-config" style="background:#25D366; color:white;" onclick="shareToSocial('wa', \`${rawTextForShare}\`)">💬 ዋትስአፕ</button>
-            <button class="btn-expense" onclick="closeActiveModal()">❌ ዝጋ</button>
+            <button class="btn-sell" onclick="window.print()">🖨️ ደረሰኝ አትም (Print)</button>
+            <button class="btn-add" onclick="downloadReceiptPDF('${itemName}_${recId}')">📥 ፒዲኤፍ (PDF)</button>
+            <button class="btn-config" style="background:#0088cc; color:white; grid-column: span 2;" onclick="shareToSocial('tg', \`${rawTextForShare}\`)">✈️ በቴሌግራም አጋራ</button>
+            <button class="btn-expense" style="grid-column: span 2;" onclick="closeActiveModal()">❌ ዝጋ</button>
         </div>
         `;
         
@@ -1016,14 +1179,11 @@
         let body = document.getElementById('formModalBody');
         body.innerHTML = receiptHTML;
         
-        // ፉተሩን ባዶ እናደርገዋለን ምክንያቱም በተኖቹን እዛው ግሪድ ውስጥ ስላካተትናቸው
         document.getElementById('formModalFooter').innerHTML = '';
-        
         openModalContainer();
         document.getElementById('formModal').classList.remove('hidden');
     }
 
-    // ደረሰኙን ወደ PDF ቀይሮ የሚያወርድ ፈንክሽን
     function downloadReceiptPDF(filename) {
         const element = document.getElementById('printableReceiptArea');
         const opt = {
@@ -1031,12 +1191,11 @@
             filename:     'Receipt_' + filename + '.pdf',
             image:        { type: 'jpeg', quality: 0.98 },
             html2canvas:  { scale: 2, useCORS: true },
-            jsPDF:        { unit: 'mm', format: 'a6', orientation: 'portrait' } // ለደረሰኝ ተስማሚ የሆነ የA6 ሳይዝ
+            jsPDF:        { unit: 'mm', format: 'a6', orientation: 'portrait' }
         };
         html2pdf().set(opt).from(element).save();
     }
 
-    // ወደ ሶሻል ሚዲያ ማጋሪያ ፈንክሽን
     function shareToSocial(platform, text) {
         let url = "";
         if(platform === 'tg') {
@@ -1045,6 +1204,11 @@
             url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
         }
         window.open(url, '_blank');
+    }
+
+    function viewPastReceipt(idx) {
+        let rec = currentTenant.data.receipts[idx];
+        generateDigitalReceipt(rec.itemName, rec.count, rec.totalVal, rec.recId, rec.seller, false);
     }
 
     function sellItem(idx) {
@@ -1062,10 +1226,11 @@
             if (count <= 0) return;
             if (count > remaining) { showCustomAlert("ስህተት", "በክምችት ውስጥ ካለው ቀሪ እቃ ይበልጣል!"); return; }
             item.sold += count;
-            saveAndRefresh();
             
+            let currentSeller = currentUserRole === 'staff' ? 'ሰራተኛ (Employee)' : 'ባለቤት (Employer)';
             let totalVal = item.price * count;
-            sendTelegramAlert(`🛍️ የሽያጭ ማስታወቂያ (${currentUserRole === 'staff' ? 'በሰራተኛ' : 'በአሰሪ'})፦\nዕቃ፡ ${item.name}\nብዛት፡ ${count} ፍሬ\nዋጋ፡ ${totalVal} ETB`);
+            
+            sendTelegramAlert(`🛍️ የሽያጭ ማስታወቂያ (${currentSeller})፦\nየሱቅ ስም: ${currentTenant.shopName}\nዕቃ፡ ${item.name}\nብዛት፡ ${count} ፍሬ\nዋጋ፡ ${totalVal} ETB`);
             
             generateDigitalReceipt(item.name, count, totalVal);
         });
@@ -1116,7 +1281,6 @@
         });
     }
 
-    // ማሻሻያ የተደረገበት የብር ማንሻ እና መመለሻ (Repayment Tracking) ሲስተም
     function openDrawerModal() {
         showFormModal("ከሳጥን ብር ማንሻ / የተነሳ መመለሻ", [
             { id: "actionType", label: "የድርጊት ዓይነት ይምረጡ፦", type: "select", options: [
@@ -1134,7 +1298,6 @@
             let d = currentTenant.data || {}; 
             if(!d.drawerLog) d.drawerLog = [];
             
-            // ብሩ ከተመለሰ በኔጌቲቭ ቫልዩ (-amount) ሴቭ እናደርገዋለን፤ ይህም ማታ ከሳጥን ሂሳብ ላይ ተቀናንሶ ትክክለኛውን ካሽ ያሳያል
             let finalAmount = action === "withdraw" ? amount : -amount;
             let displayType = action === "withdraw" ? "ገንዘብ ተነሳ" : "ገንዘብ ተመለሰ";
             
@@ -1280,7 +1443,7 @@
     function clearAllTenantData() {
         if(currentUserRole === "staff") return;
         showCustomConfirm("ሁሉንም ዳታ ማጽዳት", "ሁሉንም ዳታ ለማጥፋት እርግጠኛ ኖት?", () => {
-            currentTenant.data = { sessionActive: false, shiftClosed: false, inventory: [], expenses: [], debts: [], drawerLog: [], history: [] };
+            currentTenant.data = { sessionActive: false, shiftClosed: false, inventory: [], expenses: [], debts: [], drawerLog: [], history: [], receipts: [] };
             saveAndRefresh(); checkMorningSession();
         });
     }
@@ -1417,12 +1580,35 @@
                 let isReturn = dr.amount < 0;
                 let displayAmt = isReturn ? Math.abs(dr.amount) + " ETB (መለሰ)" : dr.amount + " ETB";
                 let displayColor = isReturn ? "var(--success-color)" : "var(--purple-color)";
-                tbodyColor = `style="color:${displayColor}; font-weight:bold;"`;
+                let tbodyColor = `style="color:${displayColor}; font-weight:bold;"`;
                 
                 drawBody.innerHTML += `<tr>
                     <td>${dr.reason}</td>
                     <td ${tbodyColor}>${displayAmt}</td>
                     <td>${dr.time}</td>
+                </tr>`;
+            });
+        }
+
+        // የደረሰኞች ታሪክ ማህደር (Receipt History Table) መሙያ ሎጂክ
+        let receiptHistoryBody = document.getElementById('receiptHistoryTableBody');
+        receiptHistoryBody.innerHTML = '';
+        let pastReceipts = d.receipts || [];
+        if (pastReceipts.length === 0) {
+            receiptHistoryBody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#94a3b8;">ምንም የተቆረጠ የደረሰኝ ታሪክ የለም</td></tr>';
+        } else {
+            // አዳዲሶቹ ደረሰኞች ላይ እንዲመጡ ታሪኩን ገልብጠን (Reverse) እናሳያለን
+            let reversedReceipts = [...pastReceipts].reverse();
+            reversedReceipts.forEach((rec, originalIdx) => {
+                let actualIdx = pastReceipts.length - 1 - originalIdx;
+                receiptHistoryBody.innerHTML += `<tr>
+                    <td><b>#${rec.recId}</b></td>
+                    <td>${rec.date}</td>
+                    <td>${rec.itemName}</td>
+                    <td>${rec.count}</td>
+                    <td class="text-success"><b>${rec.totalVal} ETB</b></td>
+                    <td><span class="text-warning">${rec.seller}</span></td>
+                    <td><button class="btn-config btn-sm" onclick="viewPastReceipt(${actualIdx})">👁️ ድጋሚ እይ / Print</button></td>
                 </tr>`;
             });
         }
@@ -1475,6 +1661,7 @@
                 d.expenses = [];
                 d.drawerLog = [];
                 d.debts = d.debts || [];
+                d.receipts = d.receipts || [];
                 d.collectedCreditToday = 0;
                 currentTenant.data = d;
                 saveAndRefresh();
