@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, minimum-scale=0.5, maximum-scale=3.0">
-    <title>ትርፌ የሱቅ መቆጣጠሪያ አፕሊኬሽን - Ultimate v11.0</title>
+    <title>ትርፌ የሱቅ መቆጣጠሪያ አፕሊኬشن - Ultimate v11.0</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -13,7 +13,7 @@
         :root {
             --bg-color: #0b0f19;
             --card-bg: #151f32;
-            --text-color: #38bdf8;
+            --text-color: #f1f5f9;
             --accent-color: #38bdf8;
             --success-color: #4ade80;
             --danger-color: #f87171;
@@ -324,6 +324,72 @@
         }
         .catalog-item-info { flex: 1; }
 
+        /* -----------------------------------------------------------------
+           🎯 አዲስ፡ ፕሮፌሽናል የ OFFLINE ማሳያ ገጽታ መቆጣጠሪያ (CSS)
+        ----------------------------------------------------------------- */
+        .critical-offline-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: #0b0f19;
+            z-index: 99999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            text-align: center;
+        }
+        .offline-status-card {
+            background-color: #151f32;
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            padding: 35px 25px;
+            border-radius: 16px;
+            max-width: 460px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        }
+        .offline-status-card .icon-zone {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+            animation: pulse-glow 2s infinite ease-in-out;
+        }
+        .offline-status-card h2 {
+            color: #f87171;
+            font-size: 1.6rem;
+            margin-bottom: 12px;
+            font-weight: 800;
+        }
+        .offline-status-card p {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+        .offline-loader {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(56, 189, 248, 0.2);
+            border-radius: 50%;
+            border-top-color: #38bdf8;
+            animation: spin-loader 1s ease-in-out infinite;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+        .offline-status-card .footer-note {
+            font-size: 0.8rem;
+            color: #64748b;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding-top: 15px;
+            margin-top: 10px;
+        }
+        @keyframes spin-loader { to { transform: rotate(360deg); } }
+        @keyframes pulse-glow {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.08); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+
         @media print {
             body * { visibility: hidden; }
             #printableReceiptArea, #printableReceiptArea * { visibility: visible; }
@@ -332,6 +398,18 @@
     </style>
 </head>
 <body class="theme-deepblue">
+
+<div id="criticalOfflineScreen" class="critical-offline-overlay hidden">
+    <div class="offline-status-card">
+        <div class="icon-zone">📡</div>
+        <h2>የመስመር ውጭ (Offline) ሁነታ</h2>
+        <p>የእርስዎ መሣሪያ በአሁኑ ሰዓት ከበይነመረብ (Internet) ጋር አልተገናኘም። የውሂብ ደህንነትን ለመጠበቅ እና ከማዕከላዊው የባንክ ሲስተም ጋር እንዳይጋጭ ጊዜያዊ እገዳ ተጥሏል።</p>
+        <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; margin-bottom: 15px; font-weight: bold; color: #38bdf8; font-size: 0.9rem;">
+            <div class="offline-loader"></div> መስመር ላይ ለመመለስ በመሞከር ላይ...
+        </div>
+        <div class="footer-note">የኔትወርክ ግንኙነትዎ እንደተመለሰ አፕሊኬሽኑ በራሱ በራስ-ሰር ይከፈታል።</div>
+    </div>
+</div>
 
 <div class="container">
 
@@ -456,7 +534,7 @@
             <p id="roleSubTitle">ቀልጣፋ፣ ዘመናዊ እና አስተማማኝ የሱቅዎ የሂሳብ ረዳት</p>
         </div>
 
-        <div id="sessionDisplay" class="session-badge">የዕለቱ መፈላጊ መረጃ በመጠባበቅ ላይ...</div>
+        <div id="sessionDisplay" class="session-badge">የዕለቱ መፈላጊ መፈላጊ መረጃ በመጠባበቅ ላይ...</div>
         <div id="shiftStatusAlert" class="session-badge hidden" style="color:var(--danger-color); background:rgba(244,63,94,0.1); border-color:var(--danger-color);">⚠️ ትኩረት፦ የዛሬው የስራ ሰዓት አብቅቷል። እባክዎ የዕለቱን ሂሳብ መዝጊያ ሪፖርት ያቅርቡ!</div>
 
         <div class="dashboard" id="ownerDashboard">
@@ -653,13 +731,22 @@
     window.addEventListener('online', handleOnlineStatus);
     window.addEventListener('offline', handleOnlineStatus);
 
+    /* -----------------------------------------------------------------
+       🎯 አዲስ/የተቀየረ፦ የኢንተርኔት መጥፋትን በዘመናዊ መንገድ መቆጣጠሪያ (JavaScript)
+    ----------------------------------------------------------------- */
     function handleOnlineStatus() {
         isOnline = navigator.onLine;
         const tag = document.getElementById('syncIndicator');
+        const criticalScreen = document.getElementById('criticalOfflineScreen');
+        
         if(!isOnline) {
-            tag.classList.remove('hidden');
+            // ኢንተርኔት ሲጠፋ፡ ነጩን ስክሪን ለመከላከል የራሳችንን አፕሊኬሽን ስክሪን እንጭናለን
+            if(tag) tag.classList.remove('hidden');
+            if(criticalScreen) criticalScreen.classList.remove('hidden');
         } else {
-            tag.classList.add('hidden');
+            // ኢንተርኔቱ ሲመለስ፡ የራሳችንን ስክሪን አንስተን ዳታውን ወደ ፊውዝ ቤዝ እንልካለን
+            if(tag) tag.classList.add('hidden');
+            if(criticalScreen) criticalScreen.classList.add('hidden');
             pushToFirebase();
         }
     }
@@ -685,6 +772,9 @@
 
     loadLocalStorageBackup();
     checkAutomaticLogin();
+
+    // መጀመሪያ ገጹ ሲከፈት የኢንተርኔቱን ሁኔታ ያረጋግጣል
+    handleOnlineStatus();
 
     db.ref('tirfe_system').on('value', (snapshot) => {
         if(snapshot.exists()) {
@@ -1416,7 +1506,7 @@
             let currentSeller = currentUserRole === 'staff' ? 'ሰራተኛ (Employee)' : 'ባለቤት (Employer)';
             let totalVal = item.price * count;
             
-            sendTelegramAlert(`🛍️ የሽያጭ ማስታወቂያ (${currentSeller})፦\nየሱቅ ስም: ${currentTenant.shopName}\nዕቃ፡ ${item.name}\nብዛት፡ ${count} ፍሬ\nዋጋ፡ ${totalVal} ETB`);
+            sendTelegramAlert(`🛍️ የሽያጭ ማስታወቂያ (${currentSeller})፦\nየሱቅ ስም: ${currentTenant.shopName}\nዕቃ፡ ${item.name}\n¼ዛት፡ ${count} ፍሬ\nዋጋ፡ ${totalVal} ETB`);
             
             generateDigitalReceipt(item.name, count, totalVal);
         });
@@ -1603,7 +1693,7 @@
                 } else if (variance > 0) {
                     resultMessage = `📈 ጥሩ ነው! ካፒታልዎ በ ${variance.toFixed(2)} ETB ጨምሯል (ትርፍ/ትርፍ አሳይቷል)።`;
                 } else {
-                    resultMessage = `⚠️ ትኩረት፦ ካፒታልዎ በ ${Math.abs(variance).toFixed(2)} ETB ቀንሷል! እባክዎ ወጪዎችን ወይም ያልተመዘገቡ ሽያጮችን ይፈትሹ።`;
+                    resultMessage = `⚠️ ትকুረት፦ ካፒታልዎ በ ${Math.abs(variance).toFixed(2)} ETB ቀንሷል! እባክዎ ወጪዎችን ወይም ያልተመዘገቡ ሽያጮችን ይፈትሹ።`;
                 }
 
                 let AmharicSummary = `
